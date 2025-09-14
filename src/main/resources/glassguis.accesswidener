@@ -1,0 +1,14 @@
+accessWidener v2 named
+
+accessible field net/minecraft/client/Minecraft INSTANCE Lnet/minecraft/client/Minecraft;
+
+accessible method net/minecraft/client/gui/DrawContext drawHorizontalLine (IIII)V
+accessible method net/minecraft/client/gui/DrawContext drawVerticalLine (IIII)V
+accessible method net/minecraft/client/gui/DrawContext fill (IIIII)V
+accessible method net/minecraft/client/gui/DrawContext fillGradient (IIIIII)V
+
+accessible field net/minecraft/client/gui/screen/ingame/HandledScreen itemRenderer Lnet/minecraft/client/render/item/ItemRenderer;
+accessible field net/minecraft/client/gui/screen/ingame/HandledScreen backgroundWidth I
+accessible field net/minecraft/client/gui/screen/ingame/HandledScreen backgroundHeight I
+
+accessible method net/minecraft/screen/ScreenHandler addSlot (Lnet/minecraft/screen/slot/Slot;)V

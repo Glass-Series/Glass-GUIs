@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "glassguis",
+  "id": "glassguis_test",
   "version": "${version}",
 
-  "name": "Glass GUIs",
+  "name": "Glass GUIs_test",
   "description": "A total conversion mod aiming to add new features and revitalize beta 1.7.3. Incompatible with everything, including StationAPI.",
   "authors": [
     "calmilamsy"
@@ -14,14 +14,14 @@
   },
 
   "license": "CC0-1.0",
-  "icon": "assets/glasstech/icon.png",
+  "icon": "assets/glassguis_test/icon.png",
 
   "environment": "*",
   "entrypoints": {
     "stationapi:event_bus": [
       {
         "adapter": "kotlin",
-        "value": "net.glasslauncher.mods.glassguis.events.init.GlassGUIs"
+        "value": "net.glasslauncher.mods.glassguistest.events.init.GlassGUIsTest"
       }
     ],
     "stationapi:event_bus_client": [
@@ -30,9 +30,7 @@
     ]
   },
   "mixins": [
-    "glassguis.mixins.json"
   ],
-  "accessWidener": "glassguis.accesswidener",
 
   "depends": {
     "minecraft": "1.0.0-beta.7.3"
