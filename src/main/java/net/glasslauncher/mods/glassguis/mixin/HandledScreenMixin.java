@@ -46,8 +46,8 @@ public class HandledScreenMixin {
             Sprite sprite = customSizeSlot.getBackgroundSprite().getSprite();
             SpriteAtlasTexture atlas = StationRenderAPI.getBakedModelManager().getAtlas(sprite.getAtlasId());
             atlas.bindTexture();
-            drawTexture(slot.x, slot.y, 16, 16, sprite.getContents().getWidth(), sprite.getContents().getHeight(), sprite.getX(), sprite.getY());
-            return 0;
+            drawTexture(slot.x, slot.y, 16, 16, sprite);
+            return -1;
         }
         return original.call(instance);
     }
@@ -72,11 +72,11 @@ public class HandledScreenMixin {
         return slot instanceof CustomSizeSlot customSizeSlot ? value + ((customSizeSlot.getHeight() - 16) / 2) : value;
     }
 
-    private void drawTexture(int x, int y, int width, int height, int imgWidth, int imgHeight, int startX, int startY) {
-        double startU = (1.0 / imgWidth) * startX;
-        double startV = (1.0 / imgHeight) * startY;
-        double u = (1.0 / imgWidth) * width;
-        double v = (1.0 / imgHeight) * height;
+    private void drawTexture(int x, int y, int width, int height, Sprite sprite) {
+        double startU = sprite.getMinU();
+        double startV = sprite.getMinV();
+        double u = sprite.getMaxU();
+        double v = sprite.getMaxV();
         Tessellator tessellator = Tessellator.INSTANCE;
         tessellator.startQuads();
         tessellator.vertex((x + 0D), (y + height), 0.0, startU, v); // bl

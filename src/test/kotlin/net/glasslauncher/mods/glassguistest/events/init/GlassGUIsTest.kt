@@ -16,16 +16,20 @@ import net.modificationstation.stationapi.api.event.registry.BlockRegistryEvent
 import net.modificationstation.stationapi.api.event.registry.GuiHandlerRegistryEvent
 import net.modificationstation.stationapi.api.recipe.CraftingRegistry
 import net.modificationstation.stationapi.api.util.Identifier
+import net.modificationstation.stationapi.api.util.Namespace
 
 class GlassGUIsTest {
     companion object {
+        @Suppress("UnstableApiUsage")
+        val NAMESPACE = Namespace.resolve()
+
         var testBlock: Block? = null
         var sprite: Atlas.Sprite? = null
     }
 
     @EventListener
     fun blocks(event: BlockRegistryEvent) {
-        testBlock = GuiTestBlock(Identifier.of("glassguis_test:test_block"), Material.WOOD).setTranslationKey(Identifier.of("glassguis_test:test_block"))
+        testBlock = GuiTestBlock(NAMESPACE.id("test_block"), Material.WOOD).setTranslationKey(Identifier.of("glassguis_test:test_block"))
     }
 
     @EventListener
@@ -42,11 +46,11 @@ class GlassGUIsTest {
 
     @EventListener
     fun gui(event: GuiHandlerRegistryEvent) {
-        event.register(Identifier.of("glassguis_test:testgui"), GuiHandler(ScreenFactoryNoMessage { player, inventory -> GuiTestGui(player.inventory, inventory as GuiTestBlockEntity) }, { GuiTestBlockEntity() }))
+        event.register(NAMESPACE.id("testgui"), GuiHandler(ScreenFactoryNoMessage { player, inventory -> GuiTestGui(player.inventory, inventory as GuiTestBlockEntity) }, { GuiTestBlockEntity() }))
     }
 
     @EventListener
     fun tex(event: TextureRegisterEvent) {
-        sprite = Atlases.getGuiItems().addTexture(Identifier.of("glassguis_test:item/battery_slot"))
+        sprite = Atlases.getGuiItems().addTexture(NAMESPACE.id("item/battery_slot"))
     }
 }
