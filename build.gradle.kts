@@ -1,8 +1,7 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.net.URI
 
 plugins {
-	kotlin("jvm") version "2.1.20"
+	id("java")
 	id("maven-publish")
 	id("fabric-loom") version "1.9.2"
 	id("babric-loom-extension") version "1.9.4"
@@ -11,7 +10,6 @@ plugins {
 //noinspection GroovyUnusedAssignment
 java.sourceCompatibility = JavaVersion.VERSION_17
 java.targetCompatibility = JavaVersion.VERSION_17
-kotlin.compilerOptions.jvmTarget.set(JvmTarget.JVM_17)
 
 base.archivesName = project.properties["archives_base_name"] as String
 version = project.properties["mod_version"] as String
@@ -69,8 +67,8 @@ dependencies {
 
 	// convenience stuff
 	// adds some useful annotations for data classes. does not add any dependencies
-	compileOnly("org.projectlombok:lombok:1.18.24")
-	annotationProcessor("org.projectlombok:lombok:1.18.24")
+	compileOnly("org.projectlombok:lombok:1.18.42")
+	annotationProcessor("org.projectlombok:lombok:1.18.42")
 
 	// adds some useful annotations for miscellaneous uses. does not add any dependencies, though people without the lib will be missing some useful context hints.
 	implementation("org.jetbrains:annotations:23.0.0")
@@ -87,10 +85,6 @@ dependencies {
 	modImplementation("net.glasslauncher.mods:ModMenu:${project.properties["modmenu_version"]}")
 	// https://github.com/Glass-Series/Always-More-Items
 	modImplementation("net.glasslauncher.mods:AlwaysMoreItems:${project.properties["alwaysmoreitems_version"]}")
-
-	transitiveImplementation(modImplementation("net.fabricmc:fabric-language-kotlin:1.13.2+kotlin.2.1.20") {
-		exclude("net.fabricmc")
-	} as Dependency)
 
 }
 

@@ -14,15 +14,12 @@
   },
 
   "license": "CC0-1.0",
-  "icon": "assets/glasstech/icon.png",
+  "icon": "assets/glassguis/icon.png",
 
   "environment": "*",
   "entrypoints": {
     "stationapi:event_bus": [
-      {
-        "adapter": "kotlin",
-        "value": "net.glasslauncher.mods.glassguis.events.init.GlassGUIs"
-      }
+      "net.glasslauncher.mods.glassguis.events.init.GlassGUIs"
     ],
     "stationapi:event_bus_client": [
     ],
@@ -33,6 +30,13 @@
     "glassguis.mixins.json"
   ],
   "accessWidener": "glassguis.accesswidener",
+
+  "custom": {
+    "loom:injected_interfaces": {
+      "net/minecraft/client/gui/screen/Screen": ["net/glasslauncher/mods/glassguis/GlassScreen"],
+      "net/minecraft/screen/ScreenHandler": ["net/glasslauncher/mods/glassguis/GlassScreenHandler"]
+    }
+  },
 
   "depends": {
     "minecraft": "1.0.0-beta.7.3"
