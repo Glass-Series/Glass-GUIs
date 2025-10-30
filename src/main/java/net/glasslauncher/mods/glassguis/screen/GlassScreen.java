@@ -1,16 +1,15 @@
-package net.glasslauncher.mods.glassguis;
+package net.glasslauncher.mods.glassguis.screen;
 
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.screen.ScreenHandler;
 import net.modificationstation.stationapi.api.util.Util;
 
 import java.awt.*;
 import java.util.List;
 
 @SuppressWarnings("unused")
-public interface GlassScreen {
+public interface GlassScreen<T extends Screen> {
     default void glassguis_renderBackground(HandledScreen screen) { Util.assertImpl(); }
 
     default void glassguis_renderBackground(int screenWidth, int screenHeight, int backgroundWidth, int backgroundHeight) { Util.assertImpl(); }
@@ -70,4 +69,6 @@ public interface GlassScreen {
     default void glassguis_setTextColor(int textColor) { Util.assertImpl(); }
 
     default void glassguis_setName(String name) { Util.assertImpl(); }
+
+    default T glassguis_getReal() { Util.assertImpl(); return null; }
 }

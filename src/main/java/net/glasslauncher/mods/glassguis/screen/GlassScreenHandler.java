@@ -1,9 +1,6 @@
-package net.glasslauncher.mods.glassguis;
+package net.glasslauncher.mods.glassguis.screen;
 
-import com.google.gson.GsonBuilder;
-import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.screen.ScreenHandler;
 import net.modificationstation.stationapi.api.util.Util;
 
 public interface GlassScreenHandler {

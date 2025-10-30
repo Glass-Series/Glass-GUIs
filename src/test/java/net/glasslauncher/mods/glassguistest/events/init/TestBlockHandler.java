@@ -1,6 +1,6 @@
 package net.glasslauncher.mods.glassguistest.events.init;
 
-import net.glasslauncher.mods.glassguis.GlassScreenHandler;
+import net.glasslauncher.mods.glassguis.screen.GlassScreenHandler;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.screen.ScreenHandler;

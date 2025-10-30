@@ -10,7 +10,8 @@
   ],
   "client": [
     "HandledScreenMixin",
-    "InventoryAdditions"
+    "InventoryAdditions",
+    "KeybindsScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1

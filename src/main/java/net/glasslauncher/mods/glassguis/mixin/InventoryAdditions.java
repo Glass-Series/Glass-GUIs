@@ -1,11 +1,5 @@
 package net.glasslauncher.mods.glassguis.mixin;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import lombok.Getter;
@@ -13,8 +7,8 @@ import lombok.Setter;
 import net.fabricmc.loader.api.FabricLoader;
 import net.glasslauncher.mods.alwaysmoreitems.gui.Tooltip;
 import net.glasslauncher.mods.gcapi3.api.CharacterUtils;
+import net.glasslauncher.mods.glassguis.screen.GlassScreen;
 import net.glasslauncher.mods.glassguis.screen.widget.slot.CustomSizeSlot;
-import net.glasslauncher.mods.glassguis.GlassScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -31,10 +25,16 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 @Mixin(Screen.class)
-public class InventoryAdditions extends DrawContext implements GlassScreen {
+public class InventoryAdditions extends DrawContext implements GlassScreen<Screen> {
     @Shadow public int width;
+
     @Shadow public int height;
     @Unique
     private static final Cache<String, int[]> IMAGE_SIZE_CACHE = Caffeine.newBuilder().softValues().build();
@@ -265,5 +265,10 @@ public class InventoryAdditions extends DrawContext implements GlassScreen {
             Minecraft.INSTANCE.textRenderer.drawWithShadow(line, startX, startY, -1);
             startY += 12;
         }
+    }
+
+    @Override
+    public Screen glassguis_getReal() {
+        return GlassScreen.super.glassguis_getReal();
     }
 }

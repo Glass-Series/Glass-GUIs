@@ -1,10 +1,12 @@
+import net.fabricmc.loom.configuration.mods.dependency.ModDependencyFactory
+import net.fabricmc.loom.configuration.mods.dependency.SimpleModDependency
 import java.net.URI
 
 plugins {
 	id("java")
 	id("maven-publish")
-	id("fabric-loom") version "1.9.2"
-	id("babric-loom-extension") version "1.9.4"
+	id("fabric-loom") version "1.10.5"
+	id("babric-loom-extension") version "1.10.5"
 }
 
 //noinspection GroovyUnusedAssignment
@@ -18,18 +20,24 @@ group = project.properties["maven_group"] as String
 loom {
 	accessWidenerPath = file("src/main/resources/glassguis.accesswidener")
 
-	runs {
-		// If you want to make a testmod for your mod, right click on src, and create a new folder with the same name as source() below.
-		// Intellij should give suggestions for testmod folders.
-		register("testClient") {
-			source("test")
-			client()
-			configurations.transitiveImplementation
+//	runs {
+//		// If you want to make a testmod for your mod, right click on src, and create a new folder with the same name as source() below.
+//		// Intellij should give suggestions for testmod folders.
+//		register("testClient") {
+//			source("test")
+//			client()
+//		}
+//		register("testServer") {
+//			source("test")
+//			server()
+//		}
+//	}
+	mods {
+		register("glassguis") {
+			sourceSet(sourceSets["main"])
 		}
-		register("testServer") {
-			source("test")
-			server()
-			configurations.transitiveImplementation
+		register("testmod") {
+			sourceSet(sourceSets["test"])
 		}
 	}
 }
@@ -76,7 +84,7 @@ dependencies {
 
 	// StAPI itself.
 	// transitiveImplementation tells babric loom that you want this dependency to be pulled into other mod's development workspaces. Best used ONLY for required dependencies.
-	transitiveImplementation(modImplementation("net.modificationstation:StationAPI:${project.properties["stationapi_version"]}") as Dependency)
+	modImplementation("net.modificationstation:StationAPI:${project.properties["stationapi_version"]}")
 
 	// Extra mods.
 	// https://github.com/calmilamsy/glass-config-api

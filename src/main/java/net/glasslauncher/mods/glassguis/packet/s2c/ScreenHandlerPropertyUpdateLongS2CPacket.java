@@ -3,7 +3,6 @@ package net.glasslauncher.mods.glassguis.packet.s2c;
 import lombok.SneakyThrows;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
-import net.glasslauncher.mods.glassguis.GlassScreenHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.NetworkHandler;
 import net.minecraft.network.packet.Packet;

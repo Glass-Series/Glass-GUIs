@@ -1,4 +1,4 @@
-package net.glasslauncher.mods.glassguis;
+package net.glasslauncher.mods.glassguis.screen;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
