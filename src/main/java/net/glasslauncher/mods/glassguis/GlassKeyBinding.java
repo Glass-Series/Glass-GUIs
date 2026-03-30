@@ -1,8 +1,6 @@
 package net.glasslauncher.mods.glassguis;
 
-import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.resource.language.TranslationStorage;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;

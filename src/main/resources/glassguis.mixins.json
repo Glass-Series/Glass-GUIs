@@ -11,7 +11,8 @@
   "client": [
     "HandledScreenMixin",
     "InventoryAdditions",
-    "KeybindsScreenMixin"
+    "KeybindsScreenMixin",
+    "MixinMinecraft"
   ],
   "injectors": {
     "defaultRequire": 1

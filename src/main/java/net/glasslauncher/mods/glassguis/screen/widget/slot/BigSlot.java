@@ -3,7 +3,7 @@ package net.glasslauncher.mods.glassguis.screen.widget.slot;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.screen.slot.Slot;
 
-public class BigSlot extends Slot implements CustomSizeSlot {
+public class BigSlot extends Slot implements GlassSlot {
 
     public BigSlot(Inventory inventory, int index, int x, int y) {
         super(inventory, index, x, y);

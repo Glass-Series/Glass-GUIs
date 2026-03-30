@@ -1,5 +1,6 @@
 package net.glasslauncher.mods.glassguis.screen;
 
+import net.glasslauncher.mods.glassguis.screen.widget.GlassWidget;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
@@ -71,4 +72,10 @@ public interface GlassScreen<T extends Screen> {
     default void glassguis_setName(String name) { Util.assertImpl(); }
 
     default T glassguis_getReal() { Util.assertImpl(); return null; }
+
+    default void glassguis_mouseScrolled(int mouseX, int mouseY, int deltaWheel) { Util.assertImpl(); }
+
+    default List<GlassWidget> glassguis_getWidgets() { Util.assertImpl(); return null; }
+
+    default void glassguis_addWidget(GlassWidget widget) { Util.assertImpl(); }
 }

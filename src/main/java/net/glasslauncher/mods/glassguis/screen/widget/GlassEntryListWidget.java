@@ -3,24 +3,25 @@ package net.glasslauncher.mods.glassguis.screen.widget;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.render.Tessellator;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.Rectangle;
 
-public abstract class GlassEntryListWidget {
+public abstract class GlassEntryListWidget implements GlassWidget {
     protected final Minecraft minecraft;
-    protected final int width;
-    protected final int height;
-    protected final int top;
-    protected final int bottom;
-    protected final int right;
-    protected final int left;
-    protected final int itemHeight;
-    protected int scrollUpButtonId;
-    protected int scrollDownButtonId;
-    // -2 means do nothing, -1 means get ready for next click, and anything positive is the amount to scroll by. It's weird.
-    protected float scrollMode = -2.0F;
-    protected float scrollDirection;
+    protected int width;
+    protected int height;
+    protected int topEnd;
+    protected int bottomStart;
+    protected int right;
+    protected int left;
+    protected int x;
+    protected int y;
+    protected int topSize;
+    protected int bottomSize;
+    protected int itemHeight;
+    protected int lastMousePos = -1;
+    protected ScrollMode scrollMode = ScrollMode.NONE;
     @Setter @Getter
     protected float scrollAmount;
     protected int lastHoveredEntry = -1;
@@ -29,18 +30,28 @@ public abstract class GlassEntryListWidget {
     protected boolean drawSelectedBox = true;
     @Setter
     protected int firstEntryRenderOffset;
-    protected final int margin;
+    protected int margin;
+    @Getter
+    private Rectangle bounds;
+    @Getter
+    private Rectangle scrollBounds;
 
-    public GlassEntryListWidget(Minecraft minecraft, int width, int height, int top, int bottom, int itemHeight) {
+    public GlassEntryListWidget(Minecraft minecraft, int x, int y, int width, int height, int topSize, int bottomSize, int itemHeight) {
         this.minecraft = minecraft;
-        this.width = width;
-        this.height = height;
-        this.top = top;
-        this.bottom = bottom;
+        this.topSize = topSize;
+        this.bottomSize = bottomSize;
         this.itemHeight = itemHeight;
-        this.left = 0;
-        this.right = width;
         this.margin = 20;
+        setBounds(new Rectangle(x, y, width, height));
+    }
+
+    public GlassEntryListWidget(Minecraft minecraft, int x, int y, int width, int height, int topSize, int bottomSize, int itemHeight, int margin) {
+        this.minecraft = minecraft;
+        this.topSize = topSize;
+        this.bottomSize = bottomSize;
+        this.itemHeight = itemHeight;
+        this.margin = margin;
+        setBounds(new Rectangle(x, y, width, height));
     }
 
     protected abstract int getEntryCount();
@@ -50,187 +61,197 @@ public abstract class GlassEntryListWidget {
     protected abstract boolean isSelectedEntry(int index);
 
     protected int getEntriesHeight() {
-        return this.getEntryCount() * this.itemHeight + this.firstEntryRenderOffset;
+        return getEntryCount() * itemHeight + firstEntryRenderOffset;
     }
 
     protected abstract void renderBackground();
 
-    protected abstract void renderEntry(int index, int x, int width, int y, int i, Tessellator tessellator);
+    protected abstract void renderEntry(int index, int x, int y, int width, int height, Tessellator tessellator);
 
     public int getHoveredEntry(int mouseX, int mouseY) {
-        int endX = getWidgetRight();
-        int startX = getWidgetLeft();
-        int relativeMouseY = mouseY - this.top - this.firstEntryRenderOffset + (int)this.scrollAmount - 4;
-        int hoveredEntry = relativeMouseY / this.itemHeight;
-        return mouseX >= endX && mouseX <= startX && hoveredEntry >= 0 && relativeMouseY >= 0 && hoveredEntry < this.getEntryCount() ? hoveredEntry : -1;
+        int startX = getEntryLeft();
+        int endX = getEntryRight();
+        int relativeMouseY = mouseY - topEnd - firstEntryRenderOffset + (int)scrollAmount - 4;
+        int hoveredEntry = relativeMouseY / itemHeight;
+        return mouseX >= startX && mouseX <= endX && hoveredEntry >= 0 && relativeMouseY >= 0 && hoveredEntry < getEntryCount() ? hoveredEntry : -1;
     }
 
-    public int getWidgetLeft() {
-        return margin;
+    @Override
+    public void onMouseScroll(int mouseX, int mouseY, int wheelDelta) {
+        if (bounds.contains(mouseX, mouseY)) {
+            scroll(-(wheelDelta / 50f) * (itemHeight / 2.0f));
+        }
     }
 
-    public int getWidgetRight() {
-        return width - margin;
+    @Override
+    public void setBounds(Rectangle bounds) {
+        this.bounds = bounds;
+        this.x = bounds.getX();
+        this.y = bounds.getY();
+        this.width = bounds.getWidth();
+        this.height = bounds.getHeight();
+        this.topEnd = y + topSize;
+        this.bottomStart = y + height - bottomSize;
+        this.left = x;
+        this.right = x + width;
+        scrollBounds = new Rectangle(x, topEnd, width, bottomStart - topSize);
     }
 
-    public void setScrollButtons(int scrollUp, int scrollDown) {
-        this.scrollUpButtonId = scrollUp;
-        this.scrollDownButtonId = scrollDown;
+    public int getEntryLeft() {
+        return x + margin;
+    }
+
+    public int getEntryRight() {
+        return getEntryLeft() + width - (margin * 2);
     }
 
     public void scroll(float amount) {
         scrollAmount += amount;
+        clampScroll();
     }
 
     protected void clampScroll() {
-        int maxScroll = this.getEntriesHeight() - (this.bottom - this.top - 4);
+        int maxScroll = getEntriesHeight() - (bottomStart - topEnd - 4);
         if (maxScroll < 0) {
             maxScroll /= 2;
         }
 
-        if (this.scrollAmount < 0.0F) {
-            this.scrollAmount = 0.0F;
+        if (scrollAmount < 0.0F) {
+            scrollAmount = 0.0F;
         }
 
-        if (this.scrollAmount > (float)maxScroll) {
-            this.scrollAmount = (float)maxScroll;
+        if (scrollAmount > (float)maxScroll) {
+            scrollAmount = (float)maxScroll;
         }
 
     }
 
-    public void onMouseClicked(int mouseX, int mouseY, int button) {
-        if (button != 0) {
+    @Override
+    public void onMouseDown(int mouseX, int mouseY, int button) {
+        if (button != 0 || !scrollBounds.contains(mouseX, mouseY)) {
             return;
         }
-        if (this.scrollMode >= 0.0F) {
-            this.scrollAmount -= ((float)mouseY - this.scrollMode) * this.scrollDirection;
-            this.scrollMode = (float)mouseY;
+
+        int scrollbarStart = x + width - 6;
+        int scrollbarEnd = scrollbarStart + 6;
+
+        if (mouseX >= scrollbarStart && mouseX <= scrollbarEnd) {
+            scrollMode = ScrollMode.BAR;
             return;
         }
-        boolean shouldScroll = true;
-        if (mouseY >= this.top && mouseY <= this.bottom) {
-            int scrollbarStart = this.width - 6;
-            int scrollbarEnd = scrollbarStart + 6;
-            int scrollAreaEndX = getWidgetLeft();
-            int scrollAreaStartX = getWidgetRight();
-            int relativeMousePosition = mouseY - this.top - this.firstEntryRenderOffset + (int)this.scrollAmount - 4;
-            int hoveredEntry = relativeMousePosition / this.itemHeight;
-            if (mouseX >= scrollAreaEndX && mouseX <= scrollAreaStartX && hoveredEntry >= 0 && relativeMousePosition >= 0 && hoveredEntry < getEntryCount()) {
-                boolean doubleClicked = hoveredEntry == this.lastHoveredEntry && System.currentTimeMillis() - this.lastClicked < 250L;
-                this.entryClicked(hoveredEntry, doubleClicked);
-                this.lastHoveredEntry = hoveredEntry;
-                this.lastClicked = doubleClicked ? 0 : System.currentTimeMillis(); // Don't allow chain double-clicking
-            } else if (mouseX >= scrollAreaEndX && mouseX <= scrollAreaStartX && relativeMousePosition < 0) {
-                shouldScroll = false;
-            }
 
-            if (mouseX >= scrollbarStart && mouseX <= scrollbarEnd) {
-                this.scrollDirection = -1.0F;
-                int var19 = this.getEntriesHeight() - (this.bottom - this.top - 4);
-                if (var19 < 1) {
-                    var19 = 1;
-                }
+        scrollMode = ScrollMode.BODY;
 
-                int var13 = (int)((float)((this.bottom - this.top) * (this.bottom - this.top)) / (float)this.getEntriesHeight());
-                if (var13 < 32) {
-                    var13 = 32;
-                }
+        int hoveredEntry = getHoveredEntry(mouseX, mouseY);
 
-                if (var13 > this.bottom - this.top - 8) {
-                    var13 = this.bottom - this.top - 8;
-                }
-
-                this.scrollDirection /= (float)(this.bottom - this.top - var13) / (float)var19;
-            } else {
-                this.scrollDirection = 1.0F;
-            }
-
-            if (shouldScroll) {
-                this.scrollMode = (float)mouseY;
-            } else {
-                this.scrollMode = -2.0F;
-            }
-        } else {
-            this.scrollMode = -2.0F;
+        if (mouseY != -1) {
+            boolean doubleClicked = hoveredEntry == lastHoveredEntry && System.currentTimeMillis() - lastClicked < 250L;
+            entryClicked(hoveredEntry, doubleClicked);
+            lastHoveredEntry = hoveredEntry;
+            lastClicked = doubleClicked ? 0 : System.currentTimeMillis(); // Don't allow chain double-clicking
         }
+        clampScroll();
     }
 
-    public void onMouseReleased(int mouseX, int mouseY, int button) {
+    @Override
+    public void onMouseUp(int mouseX, int mouseY, int button) {
         if (button == 0) {
-            this.scrollMode = -1.0F;
+            scrollMode = ScrollMode.NONE;
         }
     }
 
-    public void buttonClicked(ButtonWidget button) {
-        if (button.active) {
-            if (button.id == this.scrollUpButtonId) {
-                this.scrollAmount -= (float) (this.itemHeight * 2 / 3);
-                this.scrollMode = -2.0F;
-                this.clampScroll();
-            } else if (button.id == this.scrollDownButtonId) {
-                this.scrollAmount += (float)(this.itemHeight * 2 / 3);
-                this.scrollMode = -2.0F;
-                this.clampScroll();
-            }
-
-        }
-    }
-
-    public void render(int mouseX, int mouseY, float f) {
-        this.renderBackground();
-        this.clampScroll();
+    @Override
+    public void render(int mouseX, int mouseY, float frameDelta) {
+        renderBackground();
+        clampScroll();
 
         GL11.glDisable(2896);
         GL11.glDisable(2912);
         Tessellator tessellator = Tessellator.INSTANCE;
-        GL11.glBindTexture(3553, this.minecraft.textureManager.getTextureId("/gui/background.png"));
+        GL11.glBindTexture(3553, minecraft.textureManager.getTextureId("/gui/background.png"));
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 
         float backgroundSize = 32.0F;
         tessellator.startQuads();
         tessellator.color(2105376);
-        tessellator.vertex(this.left, this.bottom, 0.0, (float)this.left / backgroundSize, (float)(this.bottom + (int)this.scrollAmount) / backgroundSize);
-        tessellator.vertex(this.right, this.bottom, 0.0, (float)this.right / backgroundSize, (float)(this.bottom + (int)this.scrollAmount) / backgroundSize);
-        tessellator.vertex(this.right, this.top, 0.0, (float)this.right / backgroundSize, (float)(this.top + (int)this.scrollAmount) / backgroundSize);
-        tessellator.vertex(this.left, this.top, 0.0, (float)this.left / backgroundSize, (float)(this.top + (int)this.scrollAmount) / backgroundSize);
+        tessellator.vertex(left, bottomStart, 0.0, (float)left / backgroundSize, (float)(y + bottomStart + (int)scrollAmount) / backgroundSize);
+        tessellator.vertex(right, bottomStart, 0.0, (float)right / backgroundSize, (float)(y + bottomStart + (int)scrollAmount) / backgroundSize);
+        tessellator.vertex(right, topEnd, 0.0, (float)right / backgroundSize, (float)(y + topEnd + (int)scrollAmount) / backgroundSize);
+        tessellator.vertex(left, topEnd, 0.0, (float)left / backgroundSize, (float)(y + topEnd + (int)scrollAmount) / backgroundSize);
         tessellator.draw();
 
-        int entryCount = this.getEntryCount();
-        int entryHeight = this.itemHeight - 4;
-        int scrollAreaStartX = getWidgetLeft() + 4;
-        int bodyTop = this.top + 4 - (int)this.scrollAmount;
+        int entryCount = getEntryCount();
+        int entryHeight = itemHeight - 4;
+        int scrollAreaStartX = getEntryLeft();
+        int bodyTop = topEnd + 4 - (int)scrollAmount;
 
-        for(int hoveredEntry = 0; hoveredEntry < entryCount; ++hoveredEntry) {
-            int entryTop = bodyTop + hoveredEntry * this.itemHeight + this.firstEntryRenderOffset;
-            if (entryTop <= this.bottom && entryTop + entryHeight >= this.top) {
-                if (this.drawSelectedBox && this.isSelectedEntry(hoveredEntry)) {
-                    int entryEndX = getWidgetRight();
-                    int entryStartX = getWidgetLeft();
+        if (scrollMode != ScrollMode.NONE && mouseY >= topEnd && mouseY <= bottomStart) {
+            if (scrollMode == ScrollMode.BODY) {
+                if (lastMousePos != -1) {
+                    scroll(lastMousePos - mouseY);
+                }
+                lastMousePos = mouseY;
+            }
+            else if (scrollMode == ScrollMode.BAR) {
+                int bodyHeight = getEntriesHeight() - (bottomStart - topEnd - 4);
+                if (bodyHeight < 1) {
+                    bodyHeight = 1;
+                }
+
+                int scrollbarLength = (int)((float)((bottomStart - topEnd) * (bottomStart - topEnd)) / (float)getEntriesHeight());
+                if (scrollbarLength < 32) {
+                    scrollbarLength = 32;
+                }
+
+                if (scrollbarLength > bottomStart - topEnd - 8) {
+                    scrollbarLength = bottomStart - topEnd - 8;
+                }
+
+                int barMiddleStart = topEnd + (scrollbarLength / 2);
+                int barMiddleEnd = bottomStart - (scrollbarLength / 2);
+                int barMiddleArea = barMiddleEnd - barMiddleStart;
+                int mouseBarPos = mouseY - barMiddleStart;
+
+                // It's not *perfect*, but it's close enough.
+                scrollAmount = bodyHeight * ((float) mouseBarPos / barMiddleArea);
+                lastMousePos = -1;
+                clampScroll();
+            }
+        } else {
+            lastMousePos = -1;
+        }
+
+        for(int currentEntry = 0; currentEntry < entryCount; ++currentEntry) {
+            int entryTop = bodyTop + currentEntry * itemHeight + firstEntryRenderOffset;
+            if (entryTop <= bottomStart && entryTop + entryHeight >= topEnd) {
+                if (drawSelectedBox && isSelectedEntry(currentEntry)) {
+                    int entryStartX = getEntryLeft();
+                    int entryEndX = getEntryRight();
                     GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
                     GL11.glDisable(3553);
                     tessellator.startQuads();
                     tessellator.color(8421504);
-                    tessellator.vertex(entryEndX, entryTop + entryHeight + 2, 0.0, 0.0, 1.0);
-                    tessellator.vertex(entryStartX, entryTop + entryHeight + 2, 0.0, 1.0, 1.0);
-                    tessellator.vertex(entryStartX, entryTop - 2, 0.0, 1.0, 0.0);
-                    tessellator.vertex(entryEndX, entryTop - 2, 0.0, 0.0, 0.0);
+                    tessellator.vertex(entryStartX, entryTop + entryHeight + 2, 0.0, 0.0, 1.0);
+                    tessellator.vertex(entryEndX, entryTop + entryHeight + 2, 0.0, 1.0, 1.0);
+                    tessellator.vertex(entryEndX, entryTop - 2, 0.0, 1.0, 0.0);
+                    tessellator.vertex(entryStartX, entryTop - 2, 0.0, 0.0, 0.0);
                     tessellator.color(0);
-                    tessellator.vertex(entryEndX + 1, entryTop + entryHeight + 1, 0.0, 0.0, 1.0);
-                    tessellator.vertex(entryStartX - 1, entryTop + entryHeight + 1, 0.0, 1.0, 1.0);
-                    tessellator.vertex(entryStartX - 1, entryTop - 1, 0.0, 1.0, 0.0);
-                    tessellator.vertex(entryEndX + 1, entryTop - 1, 0.0, 0.0, 0.0);
+                    tessellator.vertex(entryStartX + 1, entryTop + entryHeight + 1, 0.0, 0.0, 1.0);
+                    tessellator.vertex(entryEndX - 1, entryTop + entryHeight + 1, 0.0, 1.0, 1.0);
+                    tessellator.vertex(entryEndX - 1, entryTop - 1, 0.0, 1.0, 0.0);
+                    tessellator.vertex(entryStartX + 1, entryTop - 1, 0.0, 0.0, 0.0);
                     tessellator.draw();
                     GL11.glEnable(3553);
                 }
 
-                this.renderEntry(hoveredEntry, scrollAreaStartX, getWidgetRight() - (getWidgetLeft() * 2), entryTop, entryHeight, tessellator);
+                renderEntry(currentEntry, scrollAreaStartX, entryTop, width - (margin * 2), entryHeight, tessellator);
             }
         }
 
         GL11.glDisable(2929);
         byte shadowHeight = 4;
-        this.renderBars(0, this.top, 255, 255);
-        this.renderBars(this.bottom, this.height, 255, 255);
+        renderBars(y, topEnd, 255, 255);
+        renderBars(bottomStart, y + height, 255, 255);
         GL11.glEnable(3042);
         GL11.glBlendFunc(770, 771);
         GL11.glDisable(3008);
@@ -238,46 +259,46 @@ public abstract class GlassEntryListWidget {
         GL11.glDisable(3553);
         tessellator.startQuads();
         tessellator.color(0, 0);
-        tessellator.vertex(this.left, this.top + shadowHeight, 0.0, 0.0, 1.0);
-        tessellator.vertex(this.right, this.top + shadowHeight, 0.0, 1.0, 1.0);
+        tessellator.vertex(left, topEnd + shadowHeight, 0.0, 0.0, 1.0);
+        tessellator.vertex(right, topEnd + shadowHeight, 0.0, 1.0, 1.0);
         tessellator.color(0, 255);
-        tessellator.vertex(this.right, this.top, 0.0, 1.0, 0.0);
-        tessellator.vertex(this.left, this.top, 0.0, 0.0, 0.0);
+        tessellator.vertex(right, topEnd, 0.0, 1.0, 0.0);
+        tessellator.vertex(left, topEnd, 0.0, 0.0, 0.0);
         tessellator.draw();
         tessellator.startQuads();
         tessellator.color(0, 255);
-        tessellator.vertex(this.left, this.bottom, 0.0, 0.0, 1.0);
-        tessellator.vertex(this.right, this.bottom, 0.0, 1.0, 1.0);
+        tessellator.vertex(left, bottomStart, 0.0, 0.0, 1.0);
+        tessellator.vertex(right, bottomStart, 0.0, 1.0, 1.0);
         tessellator.color(0, 0);
-        tessellator.vertex(this.right, this.bottom - shadowHeight, 0.0, 1.0, 0.0);
-        tessellator.vertex(this.left, this.bottom - shadowHeight, 0.0, 0.0, 0.0);
+        tessellator.vertex(right, bottomStart - shadowHeight, 0.0, 1.0, 0.0);
+        tessellator.vertex(left, bottomStart - shadowHeight, 0.0, 0.0, 0.0);
         tessellator.draw();
 
-        int scrollbarLeft = this.width - 6;
+        int scrollbarLeft = x + width - 6;
         int scrollbarRight = scrollbarLeft + 6;
 
-        int bodyHeight = this.getEntriesHeight() - (this.bottom - this.top - 4);
+        int bodyHeight = getEntriesHeight() - (bottomStart - topEnd - 4);
         if (bodyHeight > 0) {
-            int scrollbarLength = (this.bottom - this.top) * (this.bottom - this.top) / this.getEntriesHeight();
+            int scrollbarLength = (bottomStart - topEnd) * (bottomStart - topEnd) / getEntriesHeight();
             if (scrollbarLength < 32) {
                 scrollbarLength = 32;
             }
 
-            if (scrollbarLength > this.bottom - this.top - 8) {
-                scrollbarLength = this.bottom - this.top - 8;
+            if (scrollbarLength > bottomStart - topEnd - 8) {
+                scrollbarLength = bottomStart - topEnd - 8;
             }
 
-            int scrollbarTop = (int)this.scrollAmount * (this.bottom - this.top - scrollbarLength) / bodyHeight + this.top;
-            if (scrollbarTop < this.top) {
-                scrollbarTop = this.top;
+            int scrollbarTop = (int)scrollAmount * (bottomStart - topEnd - scrollbarLength) / bodyHeight + topEnd;
+            if (scrollbarTop < topEnd) {
+                scrollbarTop = topEnd;
             }
 
             tessellator.startQuads();
             tessellator.color(0, 255);
-            tessellator.vertex(scrollbarLeft, this.bottom, 0.0, 0.0, 1.0);
-            tessellator.vertex(scrollbarRight, this.bottom, 0.0, 1.0, 1.0);
-            tessellator.vertex(scrollbarRight, this.top, 0.0, 1.0, 0.0);
-            tessellator.vertex(scrollbarLeft, this.top, 0.0, 0.0, 0.0);
+            tessellator.vertex(scrollbarLeft, bottomStart, 0.0, 0.0, 1.0);
+            tessellator.vertex(scrollbarRight, bottomStart, 0.0, 1.0, 1.0);
+            tessellator.vertex(scrollbarRight, topEnd, 0.0, 1.0, 0.0);
+            tessellator.vertex(scrollbarLeft, topEnd, 0.0, 0.0, 0.0);
             tessellator.draw();
             tessellator.startQuads();
             tessellator.color(8421504, 255);
@@ -303,16 +324,22 @@ public abstract class GlassEntryListWidget {
 
     protected void renderBars(int start, int end, int lowerOpacity, int upperOpacity) {
         Tessellator tessellator = Tessellator.INSTANCE;
-        GL11.glBindTexture(3553, this.minecraft.textureManager.getTextureId("/gui/background.png"));
+        GL11.glBindTexture(3553, minecraft.textureManager.getTextureId("/gui/background.png"));
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         float sizeOfSquareOnScreen = 32.0F;
         tessellator.startQuads();
         tessellator.color(4210752, upperOpacity);
-        tessellator.vertex(0.0, end, 0.0, 0.0, (float)end / sizeOfSquareOnScreen);
-        tessellator.vertex(this.width, end, 0.0, (float)this.width / sizeOfSquareOnScreen, (float)end / sizeOfSquareOnScreen);
+        tessellator.vertex(x, end, 0.0, 0.0, (float)end / sizeOfSquareOnScreen);
+        tessellator.vertex(x + width, end, 0.0, (float)width / sizeOfSquareOnScreen, (float)end / sizeOfSquareOnScreen);
         tessellator.color(4210752, lowerOpacity);
-        tessellator.vertex(this.width, start, 0.0, (float)this.width / sizeOfSquareOnScreen, (float)start / sizeOfSquareOnScreen);
-        tessellator.vertex(0.0, start, 0.0, 0.0, (float)start / sizeOfSquareOnScreen);
+        tessellator.vertex(x + width, start, 0.0, (float)width / sizeOfSquareOnScreen, (float)start / sizeOfSquareOnScreen);
+        tessellator.vertex(x, start, 0.0, 0.0, (float)start / sizeOfSquareOnScreen);
         tessellator.draw();
+    }
+
+    protected enum ScrollMode {
+        NONE,
+        BODY,
+        BAR,
     }
 }

@@ -2,21 +2,23 @@ package net.glasslauncher.mods.glassguis.mixin;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.llamalad7.mixinextras.sugar.Local;
 import lombok.Getter;
 import lombok.Setter;
 import net.fabricmc.loader.api.FabricLoader;
-import net.glasslauncher.mods.alwaysmoreitems.gui.Tooltip;
 import net.glasslauncher.mods.gcapi3.api.CharacterUtils;
+import net.glasslauncher.mods.glassguis.compat.AlwaysMoreItemsCompat;
+import net.glasslauncher.mods.glassguis.compat.StationAPICompat;
 import net.glasslauncher.mods.glassguis.screen.GlassScreen;
-import net.glasslauncher.mods.glassguis.screen.widget.slot.CustomSizeSlot;
+import net.glasslauncher.mods.glassguis.screen.widget.GlassWidget;
+import net.glasslauncher.mods.glassguis.screen.widget.slot.GlassSlot;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.screen.slot.Slot;
-import net.modificationstation.stationapi.api.client.texture.atlas.Atlas;
-import net.modificationstation.stationapi.api.client.texture.atlas.Atlases;
+import org.lwjgl.input.Mouse;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -28,11 +30,15 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 @Mixin(Screen.class)
 public class InventoryAdditions extends DrawContext implements GlassScreen<Screen> {
+    @Unique
+    public List<GlassWidget> widgets = new ArrayList<>();
+
     @Shadow public int width;
 
     @Shadow public int height;
@@ -168,7 +174,7 @@ public class InventoryAdditions extends DrawContext implements GlassScreen<Scree
             int height;
             int backgroundWidth;
             int backgroundHeight;
-            if (slot instanceof CustomSizeSlot customSlot) {
+            if (slot instanceof GlassSlot customSlot) {
                 width = customSlot.getWidth();
                 height = customSlot.getHeight();
                 backgroundWidth = customSlot.getBackgroundWidth();
@@ -182,10 +188,10 @@ public class InventoryAdditions extends DrawContext implements GlassScreen<Scree
             int slotBackgroundX = slotX - ((backgroundWidth - 16) / 2);
             int slotBackgroundY = slotY - ((backgroundHeight - 16) / 2);
 
-            if (slot.getBackgroundTextureId() != -1 && ((slot instanceof CustomSizeSlot && ((CustomSizeSlot) slot).keepBackgroundTexture()) || !slot.hasStack())) {
-                Atlas.Sprite sprite = Atlases.getGuiItems().getTexture(slot.getBackgroundTextureId());
-                Minecraft.INSTANCE.textureManager.bindTexture(Minecraft.INSTANCE.textureManager.getTextureId("terrain.png"));
-                glassguis_drawTexture(x + slot.x, y + slot.y, sprite.getWidth(), sprite.getHeight());
+            if (slot.getBackgroundTextureId() != -1 && ((slot instanceof GlassSlot && ((GlassSlot) slot).keepBackgroundTexture()) || !slot.hasStack())) {
+                if (FabricLoader.getInstance().isModLoaded("stationapi")) {
+                    StationAPICompat.drawSprite(slot, x, y, this);
+                }
             }
 
             screen.fill(slotBackgroundX - 1, slotBackgroundY - 1, slotBackgroundX + backgroundWidth + 1, slotBackgroundY + backgroundHeight + 1, glassguis_slotBackground);
@@ -238,7 +244,7 @@ public class InventoryAdditions extends DrawContext implements GlassScreen<Scree
         }
 
         if (FabricLoader.getInstance().isModLoaded("alwaysmoreitems")) { // Use AMI's much better tooltip system if it's installed.
-            Tooltip.INSTANCE.setTooltip(Collections.singletonList(text), mouseX, mouseY);
+            AlwaysMoreItemsCompat.setTooltip(Collections.singletonList(text), mouseX, mouseY);
             return;
         }
 
@@ -270,5 +276,40 @@ public class InventoryAdditions extends DrawContext implements GlassScreen<Scree
     @Override
     public Screen glassguis_getReal() {
         return GlassScreen.super.glassguis_getReal();
+    }
+
+    @Override
+    public void glassguis_mouseScrolled(int mouseX, int mouseY, int deltaWheel) {
+        widgets.forEach(e -> e.onMouseScroll(mouseX, mouseY, deltaWheel));
+    }
+
+    @Override
+    public List<GlassWidget> glassguis_getWidgets() {
+        return widgets;
+    }
+
+    @Override
+    public void glassguis_addWidget(GlassWidget widget) {
+        widgets.add(widget);
+    }
+
+    @Inject(method = "onMouseEvent", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;mouseClicked(III)V"))
+    public void onMouseDown(CallbackInfo ci, @Local(index = 1) int mouseX, @Local(index = 2) int mouseY) {
+        widgets.forEach(e -> {
+            if (e.getBounds().contains(mouseX, mouseY)) {
+                e.onMouseDown(mouseX, mouseY, Mouse.getEventButton());
+            }
+        });
+    }
+
+    @Inject(method = "onMouseEvent", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;mouseReleased(III)V"))
+    public void onMouseUp(CallbackInfo ci, @Local(index = 1) int mouseX, @Local(index = 2) int mouseY) {
+        widgets.forEach(e -> e.onMouseUp(mouseX, mouseY, Mouse.getEventButton()));
+    }
+
+    @Inject(method = "render", at = @At("TAIL"))
+    public void renderWidgets(int mouseX, int mouseY, float delta, CallbackInfo ci) {
+        widgets.forEach(e -> e.render(mouseX, mouseY, delta));
+
     }
 }

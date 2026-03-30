@@ -6,8 +6,6 @@ import net.glasslauncher.mods.glassguis.screen.SyncedScreenHandlerValue;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerListener;
-import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.lang.reflect.Field;
 import java.util.*;

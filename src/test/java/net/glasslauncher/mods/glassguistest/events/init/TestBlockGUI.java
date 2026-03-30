@@ -1,23 +1,88 @@
 package net.glasslauncher.mods.glassguistest.events.init;
 
+import net.glasslauncher.mods.glassguis.screen.widget.GlassButton;
 import net.glasslauncher.mods.glassguis.screen.widget.GlassEntryListWidget;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.entity.player.PlayerInventory;
+import org.lwjgl.util.Rectangle;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class TestBlockGUI extends HandledScreen {
-    GlassEntryListWidget widget = new GlassEntryListWidget(Minecraft.INSTANCE, 64, 64, 10, 10, 10) {
-        @Override
-        protected int getEntriesHeight() {
-            return 10;
+    GlassEntryListWidget listWidget;
+    GlassButton button;
+
+    public TestBlockGUI(PlayerInventory inventory, TestBlockEntity container) {
+        super(new TestBlockHandler(inventory, container));
+        listWidget = new Widget(Minecraft.INSTANCE, 200, 200, 10, 10, 10);
+        listWidget.setDrawSelectedBox(true);
+        glassguis_addWidget(listWidget);
+        button = new GlassButton(20, 20, "Wait, this works?", () -> {});
+        button.addImage("/assets/glassguis_test/stationapi/textures/item/acacia.png", GlassButton.Alignment.LEFT);
+        button.addText("What?", GlassButton.Alignment.LEFT);
+        button.addText("Huh???", GlassButton.Alignment.RIGHT);
+        glassguis_addWidget(button);
+    }
+
+    @Override
+    public void init() {
+        listWidget.setBounds(new Rectangle(100, 100, 200, 200));
+        super.init();
+    }
+
+    @Override
+    public void drawBackground(float delta) {
+        glassguis_renderBackground(this);
+        glassguis_drawSlots(this);
+    }
+
+    private class Widget extends GlassEntryListWidget {
+        List<String> entries = new ArrayList<>() {{
+            for (int i = 0; i < 20; i++) {
+                add("Test " + i);
+            }
+        }};
+        int selIndex = -1;
+        boolean dragging = false;
+        boolean resizing = false;
+
+        public Widget(Minecraft minecraft, int width, int height, int top, int bottom, int itemHeight) {
+            super(minecraft, (TestBlockGUI.this.width / 2) - (width / 2), 30, width, height, top, bottom, itemHeight);
         }
 
-        List<String> entries = new ArrayList<>();
-        int selIndex = -1;
+        @Override
+        public void onMouseDown(int mouseX, int mouseY, int button) {
+            super.onMouseDown(mouseX, mouseY, button);
+            if (button == 0 && mouseX < x + 5 && mouseY < y + 5) {
+                dragging = true;
+            }
+            else if (button == 0 && mouseX > x + width - 5 && mouseY > y + height - 5) {
+                resizing = true;
+            }
+        }
+
+        @Override
+        public void onMouseUp(int mouseX, int mouseY, int button) {
+            super.onMouseUp(mouseX, mouseY, button);
+            if (button == 0) {
+                dragging = false;
+                resizing = false;
+            }
+        }
+
+        @Override
+        public void render(int mouseX, int mouseY, float frameDelta) {
+            if (dragging) {
+                setBounds(new Rectangle(mouseX, mouseY, width, height));
+            }
+            if (resizing) {
+                setBounds(new Rectangle(x, y, mouseX - x, mouseY - y));
+            }
+            super.render(mouseX, mouseY, frameDelta);
+        }
 
         @Override
         protected int getEntryCount() {
@@ -40,37 +105,8 @@ public class TestBlockGUI extends HandledScreen {
         }
 
         @Override
-        protected void renderEntry(int index, int x, int width, int y, int i, Tessellator tessellator) {
-            textRenderer.drawWithShadow(entries.get(index), x, y, -1);
+        protected void renderEntry(int index, int x, int y, int width, int height, Tessellator tessellator) {
+            Minecraft.INSTANCE.textRenderer.drawWithShadow(entries.get(index), x, y, -1);
         }
     };
-
-    public TestBlockGUI(PlayerInventory inventory, TestBlockEntity container) {
-        super(new TestBlockHandler(inventory, container));
-        widget.setDrawSelectedBox(true);
-    }
-
-    @Override
-    public void drawBackground(float delta) {
-        glassguis_renderBackground(this);
-        glassguis_drawSlots(this);
-    }
-
-    @Override
-    public void render(int mouseX, int mouseY, float delta) {
-        super.render(mouseX, mouseY, delta);
-        widget.render(mouseX, mouseY, delta);
-    }
-
-    @Override
-    protected void mouseClicked(int mouseX, int mouseY, int button) {
-        super.mouseClicked(mouseX, mouseY, button);
-        widget.onMouseClicked(mouseX, mouseY, button);
-    }
-
-    @Override
-    protected void mouseReleased(int mouseX, int mouseY, int button) {
-        super.mouseReleased(mouseX, mouseY, button);
-        widget.onMouseReleased(mouseX, mouseY, button);
-    }
 }

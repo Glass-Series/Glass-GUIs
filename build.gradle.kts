@@ -1,12 +1,13 @@
 import net.fabricmc.loom.configuration.mods.dependency.ModDependencyFactory
 import net.fabricmc.loom.configuration.mods.dependency.SimpleModDependency
+import net.fabricmc.loom.configuration.providers.minecraft.MinecraftProvider
 import java.net.URI
 
 plugins {
 	id("java")
 	id("maven-publish")
-	id("fabric-loom") version "1.10.5"
-	id("babric-loom-extension") version "1.10.5"
+	id("fabric-loom") version "1.15.3"
+	id("babric-loom-extension") version "1.15.3"
 }
 
 //noinspection GroovyUnusedAssignment
@@ -20,24 +21,18 @@ group = project.properties["maven_group"] as String
 loom {
 	accessWidenerPath = file("src/main/resources/glassguis.accesswidener")
 
-//	runs {
-//		// If you want to make a testmod for your mod, right click on src, and create a new folder with the same name as source() below.
-//		// Intellij should give suggestions for testmod folders.
-//		register("testClient") {
-//			source("test")
-//			client()
-//		}
-//		register("testServer") {
-//			source("test")
-//			server()
-//		}
-//	}
-	mods {
-		register("glassguis") {
-			sourceSet(sourceSets["main"])
+	runs {
+		// If you want to make a testmod for your mod, right click on src, and create a new folder with the same name as source() below.
+		// Intellij should give suggestions for testmod folders.
+		register("testClient") {
+			runDir("run/test")
+			source("test")
+			client()
 		}
-		register("testmod") {
-			sourceSet(sourceSets["test"])
+		register("testServer") {
+			runDir("run/test")
+			source("test")
+			server()
 		}
 	}
 }
@@ -84,7 +79,10 @@ dependencies {
 
 	// StAPI itself.
 	// transitiveImplementation tells babric loom that you want this dependency to be pulled into other mod's development workspaces. Best used ONLY for required dependencies.
-	modImplementation("net.modificationstation:StationAPI:${project.properties["stationapi_version"]}")
+	modCompileOnly("net.modificationstation:StationAPI:${project.properties["stationapi_version"]}")
+
+
+	implementation("com.github.ben-manes.caffeine:caffeine:3.0.5")
 
 	// Extra mods.
 	// https://github.com/calmilamsy/glass-config-api
@@ -92,8 +90,11 @@ dependencies {
 	// https://github.com/calmilamsy/modmenu
 	modImplementation("net.glasslauncher.mods:ModMenu:${project.properties["modmenu_version"]}")
 	// https://github.com/Glass-Series/Always-More-Items
-	modImplementation("net.glasslauncher.mods:AlwaysMoreItems:${project.properties["alwaysmoreitems_version"]}")
+	modCompileOnly("net.glasslauncher.mods:AlwaysMoreItems:${project.properties["alwaysmoreitems_version"]}")
 
+	implementation("org.apache.commons:commons-lang3:3.18.0")
+	implementation("commons-io:commons-io:2.18.0")
+	implementation("com.google.code.gson:gson:2.10.1")
 }
 
 tasks.withType<ProcessResources> {
@@ -127,12 +128,12 @@ tasks.withType<Jar> {
 publishing {
 	repositories {
 		mavenLocal()
-		if (project.hasProperty("my_maven_username")) {
+		if (project.hasProperty("glass_maven_username")) {
 			maven {
-				url = URI("https://maven.example.com")
+				url = URI("https://maven.glass-launcher.net/releases")
 				credentials {
-					username = "${project.properties["my_maven_username"]}"
-					password = "${project.properties["my_maven_password"]}"
+					username = "${project.properties["glass_maven_username"]}"
+					password = "${project.properties["glass_maven_password"]}"
 				}
 			}
 		}

@@ -1,25 +1,11 @@
 package net.glasslauncher.mods.glassguis.mixin;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
-import net.glasslauncher.mods.glassguis.FieldConsumer;
-import net.glasslauncher.mods.glassguis.Util;
 import net.glasslauncher.mods.glassguis.screen.GlassScreenHandler;
-import net.glasslauncher.mods.glassguis.screen.SyncedScreenHandlerValue;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.ScreenHandlerListener;
 import net.minecraft.screen.slot.Slot;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.lang.reflect.Field;
-import java.util.*;
 
 @Mixin(ScreenHandler.class)
 public abstract class ScreenHandlerMixin implements GlassScreenHandler {

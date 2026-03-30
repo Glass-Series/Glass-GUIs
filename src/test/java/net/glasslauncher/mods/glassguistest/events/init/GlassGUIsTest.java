@@ -4,6 +4,7 @@ import net.mine_diver.unsafeevents.listener.EventListener;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.item.ItemStack;
+import net.modificationstation.stationapi.api.block.StationBlock;
 import net.modificationstation.stationapi.api.client.event.texture.TextureRegisterEvent;
 import net.modificationstation.stationapi.api.client.gui.screen.GuiHandler;
 import net.modificationstation.stationapi.api.client.texture.atlas.Atlas;
@@ -32,7 +33,7 @@ public class GlassGUIsTest {
 
     @EventListener
     public void blocks(BlockRegistryEvent event) {
-        testBlock = new TestBlock(NAMESPACE.id("test_block"), Material.WOOD).setTranslationKey(Identifier.of("glassguis_test:test_block"));
+        testBlock = ((StationBlock) new TestBlock(NAMESPACE.id("test_block"), Material.WOOD)).setTranslationKey(Identifier.of("glassguis_test:test_block"));
     }
 
     @EventListener

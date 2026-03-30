@@ -1,9 +1,6 @@
 package net.glasslauncher.mods.glassguis.screen.widget.slot;
 
-import net.modificationstation.stationapi.api.client.texture.atlas.Atlas;
-import org.jetbrains.annotations.Nullable;
-
-public interface CustomSizeSlot {
+public interface GlassSlot {
     int getWidth();
     int getHeight();
 
@@ -23,8 +20,7 @@ public interface CustomSizeSlot {
         return false;
     }
 
-    @Nullable
-    default Atlas.Sprite getBackgroundSprite() {
-        return null;
+    default boolean renderExtras() {
+        return false;
     }
 }
