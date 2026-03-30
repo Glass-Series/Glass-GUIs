@@ -125,6 +125,11 @@ tasks.withType<Jar> {
 	}
 }
 
+// Disables the generation of the .module file
+tasks.withType<GenerateModuleMetadata> {
+	enabled = false
+}
+
 publishing {
 	repositories {
 		mavenLocal()
