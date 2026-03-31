@@ -1,5 +1,6 @@
 package net.glasslauncher.mods.glassguis.screen;
 
+import net.glasslauncher.mods.glassguis.DrawDirection;
 import net.glasslauncher.mods.glassguis.screen.widget.GlassWidget;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -21,7 +22,7 @@ public interface GlassScreen<T extends Screen> {
 
     default void glassguis_drawImage(DrawContext screen, String imageString, int x, int y) { Util.assertImpl(); }
 
-    default void glassguis_drawImagePercentage(DrawContext screen, String imageString, int x, int y, float percentage) { Util.assertImpl(); }
+    default void glassguis_drawImagePercentage(DrawContext screen, String imageString, int x, int y, float percentage, DrawDirection drawDirection) { Util.assertImpl(); }
 
     default void glassguis_drawSlots(HandledScreen screen) { Util.assertImpl(); }
 

@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.fabricmc.loader.api.FabricLoader;
 import net.glasslauncher.mods.gcapi3.api.CharacterUtils;
+import net.glasslauncher.mods.glassguis.DrawDirection;
 import net.glasslauncher.mods.glassguis.compat.AlwaysMoreItemsCompat;
 import net.glasslauncher.mods.glassguis.compat.StationAPICompat;
 import net.glasslauncher.mods.glassguis.screen.GlassScreen;
@@ -128,19 +129,14 @@ public class InventoryAdditions extends DrawContext implements GlassScreen<Scree
 
     @Override
     public void glassguis_drawImage(DrawContext screen, String imageString, int x, int y) {
-        glassguis_drawImagePercentage(screen, imageString, x, y, 1f);
+        glassguis_drawImagePercentage(screen, imageString, x, y, 1f, DrawDirection.UP);
     }
 
     @Override
-    public void glassguis_drawImagePercentage(DrawContext screen, String imageString, int x, int y, float percentage) {
-        int baseX;
-        int baseY;
+    public void glassguis_drawImagePercentage(DrawContext screen, String imageString, int x, int y, float percentage, DrawDirection drawDirection) {
         if (screen instanceof HandledScreen handledScreen) {
-            baseX = x + ((handledScreen.width - handledScreen.backgroundWidth) / 2);
-            baseY = y + ((handledScreen.height - handledScreen.backgroundHeight) / 2);
-        } else {
-            baseX = x;
-            baseY = y;
+            x += ((handledScreen.width - handledScreen.backgroundWidth) / 2);
+            y += ((handledScreen.height - handledScreen.backgroundHeight) / 2);
         }
 
         int[] size = IMAGE_SIZE_CACHE.asMap().computeIfAbsent(imageString, key -> {
@@ -152,8 +148,13 @@ public class InventoryAdditions extends DrawContext implements GlassScreen<Scree
             }
         });
 
+        int startX = drawDirection.left ? size[0] - (int) (size[0] * percentage) : 0;
+        int startY = drawDirection.up ? size[1] - (int) (size[1] * percentage) : 0;
+        x += startX;
+        y += startY;
+
         Minecraft.INSTANCE.textureManager.bindTexture(Minecraft.INSTANCE.textureManager.getTextureId(imageString));
-        glassguis_drawTexture(baseX, baseY, Math.abs((int)(size[0] * percentage)), size[1], size[0], size[1]);
+        glassguis_drawTexture(x, y, drawDirection.right || drawDirection.left ? (int) (size[0] * percentage) : size[0], drawDirection.down || drawDirection.up ? (int) (size[1] * percentage) : size[1], size[0], size[1], startX, startY);
     }
 
     @Override
@@ -216,8 +217,8 @@ public class InventoryAdditions extends DrawContext implements GlassScreen<Scree
     public void glassguis_drawTexture(int x, int y, int width, int height, int imgWidth, int imgHeight, int startX, int startY) {
         double startU = (1.0 / imgWidth) * startX;
         double startV = (1.0 / imgHeight) * startY;
-        double u = (1.0 / imgWidth) * width;
-        double v = (1.0 / imgHeight) * height;
+        double u = startU + ((1.0 / imgWidth) * width);
+        double v = startV + ((1.0 / imgHeight) * height);
         Tessellator tessellator = Tessellator.INSTANCE;
         tessellator.startQuads();
         tessellator.vertex(x, y + height, 0.0, startU, v); // bl

@@ -1,5 +1,6 @@
 package net.glasslauncher.mods.glassguistest.events.init;
 
+import net.glasslauncher.mods.glassguis.DrawDirection;
 import net.glasslauncher.mods.glassguis.screen.widget.GlassButton;
 import net.glasslauncher.mods.glassguis.screen.widget.GlassEntryListWidget;
 import net.minecraft.client.Minecraft;
@@ -37,6 +38,19 @@ public class TestBlockGUI extends HandledScreen {
     public void drawBackground(float delta) {
         glassguis_renderBackground(this);
         glassguis_drawSlots(this);
+
+        int x = ((width - backgroundWidth) / 2);
+        int y = ((height - backgroundHeight) / 2);
+
+        fill(x + 10, y + 30, x + 10 + 16, y + 30 + 16, -1);
+        fill(x + 10, y + 50, x + 10 + 16, y + 50 + 16, -1);
+        fill(x + 10, y + 70, x + 10 + 16, y + 70 + 16, -1);
+        fill(x + 10, y + 90, x + 10 + 16, y + 90 + 16, -1);
+
+        glassguis_drawImagePercentage(this, "/assets/glassguis_test/stationapi/textures/item/acacia.png", 10, 30, 0.8f, DrawDirection.UP);
+        glassguis_drawImagePercentage(this, "/assets/glassguis_test/stationapi/textures/item/acacia.png", 10, 50, 0.8f, DrawDirection.DOWN);
+        glassguis_drawImagePercentage(this, "/assets/glassguis_test/stationapi/textures/item/acacia.png", 10, 70, 0.8f, DrawDirection.LEFT);
+        glassguis_drawImagePercentage(this, "/assets/glassguis_test/stationapi/textures/item/acacia.png", 10, 90, 0.8f, DrawDirection.RIGHT);
     }
 
     private class Widget extends GlassEntryListWidget {
