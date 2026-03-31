@@ -57,7 +57,7 @@ public class ScreenHandlerPropertyUpdateIntegerS2CPacket extends Packet implemen
                 minecraft.player.currentScreenHandler != null &&
                 minecraft.player.currentScreenHandler.syncId == syncId
         ) {
-            minecraft.player.currentScreenHandler.glassguis_setProperty(propertyId, intValue);
+            minecraft.player.currentScreenHandler.setProperty(propertyId, intValue);
         }
     }
 

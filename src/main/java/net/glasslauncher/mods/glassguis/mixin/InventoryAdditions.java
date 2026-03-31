@@ -34,6 +34,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static net.glasslauncher.mods.glassguis.events.init.GlassGUIs.IMAGE_SIZE_CACHE;
+
 @Mixin(Screen.class)
 public class InventoryAdditions extends DrawContext implements GlassScreen<Screen> {
     @Unique
@@ -42,27 +44,25 @@ public class InventoryAdditions extends DrawContext implements GlassScreen<Scree
     @Shadow public int width;
 
     @Shadow public int height;
-    @Unique
-    private static final Cache<String, int[]> IMAGE_SIZE_CACHE = Caffeine.newBuilder().softValues().build();
 
-    @Unique @Getter @Setter
+    @Unique
     public int glassguis_guiBorder;
-    @Unique @Getter @Setter
+    @Unique
     public int glassguis_guiRoundingLight;
-    @Unique @Getter @Setter
+    @Unique
     public int glassguis_guiRoundingDark;
-    @Unique @Getter @Setter
+    @Unique
     public int glassguis_guiBackground;
-    @Unique @Getter @Setter
+    @Unique
     public int glassguis_slotRoundingLight;
-    @Unique @Getter @Setter
+    @Unique
     public int glassguis_slotRoundingDark;
-    @Unique @Getter @Setter
+    @Unique
     public int glassguis_slotBackground;
-    @Unique @Getter @Setter
+    @Unique
     public int glassguis_textColor;
 
-    @Unique @Getter @Setter
+    @Unique
     public String glassguis_name;
 
     @Inject(method = "<init>", at = @At("RETURN"))
@@ -153,7 +153,7 @@ public class InventoryAdditions extends DrawContext implements GlassScreen<Scree
         });
 
         Minecraft.INSTANCE.textureManager.bindTexture(Minecraft.INSTANCE.textureManager.getTextureId(imageString));
-        drawTexture(baseX, baseY, Math.abs((int)(size[0] * percentage)), size[1], size[0], size[1]);
+        glassguis_drawTexture(baseX, baseY, Math.abs((int)(size[0] * percentage)), size[1], size[0], size[1]);
     }
 
     @Override
@@ -244,7 +244,8 @@ public class InventoryAdditions extends DrawContext implements GlassScreen<Scree
         }
 
         if (FabricLoader.getInstance().isModLoaded("alwaysmoreitems")) { // Use AMI's much better tooltip system if it's installed.
-            AlwaysMoreItemsCompat.setTooltip(Collections.singletonList(text), mouseX, mouseY);
+            //noinspection unchecked cry some more
+            AlwaysMoreItemsCompat.setTooltip((List<Object>) (Object) text, mouseX, mouseY);
             return;
         }
 
@@ -311,5 +312,77 @@ public class InventoryAdditions extends DrawContext implements GlassScreen<Scree
     public void renderWidgets(int mouseX, int mouseY, float delta, CallbackInfo ci) {
         widgets.forEach(e -> e.render(mouseX, mouseY, delta));
 
+    }
+
+    public int glassguis_getGuiBorder() {
+        return glassguis_guiBorder;
+    }
+
+    public void glassguis_setGuiBorder(int glassguis_guiBorder) {
+        this.glassguis_guiBorder = glassguis_guiBorder;
+    }
+
+    public int glassguis_getGuiRoundingLight() {
+        return glassguis_guiRoundingLight;
+    }
+
+    public void glassguis_setGuiRoundingLight(int glassguis_guiRoundingLight) {
+        this.glassguis_guiRoundingLight = glassguis_guiRoundingLight;
+    }
+
+    public int glassguis_getGuiRoundingDark() {
+        return glassguis_guiRoundingDark;
+    }
+
+    public void glassguis_setGuiRoundingDark(int glassguis_guiRoundingDark) {
+        this.glassguis_guiRoundingDark = glassguis_guiRoundingDark;
+    }
+
+    public int glassguis_getGuiBackground() {
+        return glassguis_guiBackground;
+    }
+
+    public void glassguis_setGuiBackground(int glassguis_guiBackground) {
+        this.glassguis_guiBackground = glassguis_guiBackground;
+    }
+
+    public int glassguis_getSlotRoundingLight() {
+        return glassguis_slotRoundingLight;
+    }
+
+    public void glassguis_setSlotRoundingLight(int glassguis_slotRoundingLight) {
+        this.glassguis_slotRoundingLight = glassguis_slotRoundingLight;
+    }
+
+    public int glassguis_getSlotRoundingDark() {
+        return glassguis_slotRoundingDark;
+    }
+
+    public void glassguis_setSlotRoundingDark(int glassguis_slotRoundingDark) {
+        this.glassguis_slotRoundingDark = glassguis_slotRoundingDark;
+    }
+
+    public int glassguis_getSlotBackground() {
+        return glassguis_slotBackground;
+    }
+
+    public void glassguis_setSlotBackground(int glassguis_slotBackground) {
+        this.glassguis_slotBackground = glassguis_slotBackground;
+    }
+
+    public int glassguis_getTextColor() {
+        return glassguis_textColor;
+    }
+
+    public void glassguis_setTextColor(int glassguis_textColor) {
+        this.glassguis_textColor = glassguis_textColor;
+    }
+
+    public String glassguis_getName() {
+        return glassguis_name;
+    }
+
+    public void glassguis_setName(String glassguis_name) {
+        this.glassguis_name = glassguis_name;
     }
 }
