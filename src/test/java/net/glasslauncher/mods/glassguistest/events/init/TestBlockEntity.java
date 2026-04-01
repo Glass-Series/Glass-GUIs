@@ -1,5 +1,6 @@
 package net.glasslauncher.mods.glassguistest.events.init;
 
+import net.glasslauncher.mods.glassguis.screen.ServerSyncedField;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
@@ -8,6 +9,24 @@ import net.minecraft.nbt.NbtCompound;
 
 public class TestBlockEntity extends BlockEntity implements Inventory {
     protected ItemStack[] slots = new ItemStack[3];
+
+    @ServerSyncedField
+    private int test = 0;
+
+    public int getTest() {
+        return test;
+    }
+
+    public void setTest(int test) {
+        this.test = test;
+    }
+
+    @Override
+    public void tick() {
+        if (!world.isRemote) {
+            test++;
+        }
+    }
 
     @Override
     public void writeNbt(NbtCompound tag) {

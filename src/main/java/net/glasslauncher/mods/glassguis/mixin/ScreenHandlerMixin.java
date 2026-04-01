@@ -1,16 +1,38 @@
 package net.glasslauncher.mods.glassguis.mixin;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.glasslauncher.mods.glassguis.GGUIUtil;
+import net.glasslauncher.mods.glassguis.screen.AutoSyncingScreenHandler;
 import net.glasslauncher.mods.glassguis.screen.GlassScreenHandler;
+import net.glasslauncher.mods.networking.GlassNetworking;
+import net.glasslauncher.mods.networking.GlassPacket;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.screen.ScreenHandlerListener;
 import net.minecraft.screen.slot.Slot;
+import net.modificationstation.stationapi.api.network.packet.PacketHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.lang.reflect.Field;
+import java.util.List;
 
 @Mixin(ScreenHandler.class)
 public abstract class ScreenHandlerMixin implements GlassScreenHandler {
 
     @Shadow public abstract void addSlot(Slot slot);
+
+    @Shadow public int syncId;
+
+
+    @Shadow protected List listeners;
 
     @Override
     public void glassguis_setupPlayerInventory(int x, int y, PlayerInventory playerInventory) {
@@ -27,8 +49,47 @@ public abstract class ScreenHandlerMixin implements GlassScreenHandler {
         }
     }
 
-//    @Inject(method = "addListener", at = @At("TAIL"))
-//    private void iHateHowThisIsDone(ScreenHandlerListener par1, CallbackInfo ci) {
-//        Util.iHateHowThisIsDone(par1, (ScreenHandler) (Object) this);
-//    }
+    @Environment(EnvType.SERVER)
+    @Inject(method = "addListener", at = @At("RETURN"))
+    private void handleAutoSend(ScreenHandlerListener par1, CallbackInfo ci) {
+        if (this instanceof AutoSyncingScreenHandler) {
+            GGUIUtil.handleAutoSend((PlayerEntity) par1, (ScreenHandler) (Object) this);
+        }
+    }
+
+    @Inject(method = "sendContentUpdates", at = @At("RETURN"))
+    private void sendData(CallbackInfo ci) {
+        if (this instanceof AutoSyncingScreenHandler) {
+            for (Object listener : listeners) {
+                if (listener instanceof PlayerEntity player) {
+                    GGUIUtil.handleAutoSend((PlayerEntity) player, (ScreenHandler) (Object) this);
+                }
+            }
+        }
+    }
+
+    @Environment(EnvType.CLIENT)
+    @Inject(method = "setProperty", at = @At("RETURN"))
+    private void handleAutoInt(int propertyId, int intValue, CallbackInfo ci) {
+        Field field = glassguis_getSettableField(propertyId, int.class);
+        if (field != null) {
+            try {
+                field.setInt(((AutoSyncingScreenHandler) this).getBlockEntity(), intValue);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    @Override
+    public Field glassguis_getSettableField(int propertyId, Class<?> type)  {
+        if (this instanceof AutoSyncingScreenHandler syncingScreenHandler) {
+            Field[] fields = GGUIUtil.getSyncedFields(syncingScreenHandler.getBlockEntity().getClass());
+            if (fields != null && propertyId < fields.length && fields[propertyId].getType() == type) {
+                return fields[propertyId];
+            }
+        }
+
+        return null;
+    }
 }

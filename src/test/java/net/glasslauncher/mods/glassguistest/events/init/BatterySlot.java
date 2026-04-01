@@ -15,9 +15,9 @@ public class BatterySlot extends BigHitboxSlot {
 
     @Override
     public boolean renderExtras() {
-        SpriteAtlasTexture atlas = StationRenderAPI.getBakedModelManager().getAtlas(GlassGUIsTest.sprite.getSprite().getAtlasId());
+        SpriteAtlasTexture atlas = StationRenderAPI.getBakedModelManager().getAtlas(GlassGUIsTestClient.sprite.getSprite().getAtlasId());
         atlas.bindTexture();
-        drawSprite(x, y, GlassGUIsTest.sprite.getWidth(), GlassGUIsTest.sprite.getHeight(), GlassGUIsTest.sprite.getSprite());
+        drawSprite(x, y, GlassGUIsTestClient.sprite.getWidth(), GlassGUIsTestClient.sprite.getHeight(), GlassGUIsTestClient.sprite.getSprite());
         return true;
     }
 }

@@ -22,6 +22,7 @@
       "net.glasslauncher.mods.glassguistest.events.init.GlassGUIsTest"
     ],
     "stationapi:event_bus_client": [
+      "net.glasslauncher.mods.glassguistest.events.init.GlassGUIsTestClient"
     ],
     "stationapi:event_bus_server": [
     ]

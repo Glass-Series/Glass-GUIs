@@ -1,5 +1,7 @@
 package net.glasslauncher.mods.glassguistest.events.init;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.mine_diver.unsafeevents.listener.EventListener;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -29,7 +31,6 @@ public class GlassGUIsTest {
     public static Namespace NAMESPACE = Namespace.resolve();
 
     public static Block testBlock = null;
-    public static Atlas.Sprite sprite = null;
 
     @EventListener
     public void blocks(BlockRegistryEvent event) {
@@ -46,15 +47,5 @@ public class GlassGUIsTest {
     @EventListener
     public void entity(BlockEntityRegisterEvent event) {
         event.register.accept(TestBlockEntity.class, "test_gui");
-    }
-
-    @EventListener
-    public void gui(GuiHandlerRegistryEvent event) {
-        event.register(NAMESPACE.id("testgui"), new GuiHandler((player, inventory, packet) -> new TestBlockGUI(player.inventory, (TestBlockEntity) inventory), TestBlockEntity::new));
-    }
-
-    @EventListener
-    public void tex(TextureRegisterEvent event) {
-        sprite = Atlases.getGuiItems().addTexture(NAMESPACE.id("item/battery_slot"));
     }
 }

@@ -1,6 +1,9 @@
 package net.glasslauncher.mods.glassguistest.events.init;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.glasslauncher.mods.glassguis.DrawDirection;
+import net.glasslauncher.mods.glassguis.screen.SyncedTileEntityValue;
 import net.glasslauncher.mods.glassguis.screen.widget.GlassButton;
 import net.glasslauncher.mods.glassguis.screen.widget.GlassEntryListWidget;
 import net.minecraft.client.Minecraft;
@@ -12,6 +15,7 @@ import org.lwjgl.util.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
+@Environment(EnvType.CLIENT)
 public class TestBlockGUI extends HandledScreen {
     GlassEntryListWidget listWidget;
     GlassButton button;
@@ -51,6 +55,8 @@ public class TestBlockGUI extends HandledScreen {
         glassguis_drawImagePercentage(this, "/assets/glassguis_test/stationapi/textures/item/acacia.png", 10, 50, 0.8f, DrawDirection.DOWN);
         glassguis_drawImagePercentage(this, "/assets/glassguis_test/stationapi/textures/item/acacia.png", 10, 70, 0.8f, DrawDirection.LEFT);
         glassguis_drawImagePercentage(this, "/assets/glassguis_test/stationapi/textures/item/acacia.png", 10, 90, 0.8f, DrawDirection.RIGHT);
+
+        drawTextWithShadow(textRenderer, String.valueOf(((TestBlockHandler) container).testBlockEntity.getTest()), x + 50, y + 50, -1);
     }
 
     private class Widget extends GlassEntryListWidget {

@@ -24,6 +24,9 @@
     "stationapi:event_bus_client": [
     ],
     "stationapi:event_bus_server": [
+    ],
+    "glassnetworking": [
+      "net.glasslauncher.mods.glassguis.events.init.GlassGUIsPackets"
     ]
   },
   "mixins": [
