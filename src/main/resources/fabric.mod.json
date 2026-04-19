@@ -37,6 +37,7 @@
   "custom": {
     "loom:injected_interfaces": {
       "net/minecraft/client/gui/screen/Screen": ["net/glasslauncher/mods/glassguis/screen/GlassScreen"],
+      "net/minecraft/client/gui/screen/ingame/HandledScreen": ["net/glasslauncher/mods/glassguis/screen/GlassHandledScreen"],
       "net/minecraft/screen/ScreenHandler": ["net/glasslauncher/mods/glassguis/screen/GlassScreenHandler"]
     }
   },

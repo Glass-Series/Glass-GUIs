@@ -10,10 +10,11 @@
   "server": [
   ],
   "client": [
+    "HandledScreenAdditions",
     "HandledScreenMixin",
-    "InventoryAdditions",
     "KeybindsScreenMixin",
-    "MixinMinecraft"
+    "MixinMinecraft",
+    "ScreenAdditions"
   ],
   "injectors": {
     "defaultRequire": 1

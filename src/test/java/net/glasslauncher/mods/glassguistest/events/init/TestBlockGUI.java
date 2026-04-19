@@ -40,8 +40,8 @@ public class TestBlockGUI extends HandledScreen {
 
     @Override
     public void drawBackground(float delta) {
-        glassguis_renderBackground(this);
-        glassguis_drawSlots(this);
+        glassguis_renderBackground();
+        glassguis_drawSlots();
 
         int x = ((width - backgroundWidth) / 2);
         int y = ((height - backgroundHeight) / 2);
@@ -51,10 +51,10 @@ public class TestBlockGUI extends HandledScreen {
         fill(x + 10, y + 70, x + 10 + 16, y + 70 + 16, -1);
         fill(x + 10, y + 90, x + 10 + 16, y + 90 + 16, -1);
 
-        glassguis_drawImagePercentage(this, "/assets/glassguis_test/stationapi/textures/item/acacia.png", 10, 30, 0.8f, DrawDirection.UP);
-        glassguis_drawImagePercentage(this, "/assets/glassguis_test/stationapi/textures/item/acacia.png", 10, 50, 0.8f, DrawDirection.DOWN);
-        glassguis_drawImagePercentage(this, "/assets/glassguis_test/stationapi/textures/item/acacia.png", 10, 70, 0.8f, DrawDirection.LEFT);
-        glassguis_drawImagePercentage(this, "/assets/glassguis_test/stationapi/textures/item/acacia.png", 10, 90, 0.8f, DrawDirection.RIGHT);
+        glassguis_drawImagePercentage("/assets/glassguis_test/stationapi/textures/item/acacia.png", 10, 30, 0.8f, DrawDirection.UP);
+        glassguis_drawImagePercentage("/assets/glassguis_test/stationapi/textures/item/acacia.png", 10, 50, 0.8f, DrawDirection.DOWN);
+        glassguis_drawImagePercentage("/assets/glassguis_test/stationapi/textures/item/acacia.png", 10, 70, 0.8f, DrawDirection.LEFT);
+        glassguis_drawImagePercentage("/assets/glassguis_test/stationapi/textures/item/acacia.png", 10, 90, 0.8f, DrawDirection.RIGHT);
 
         drawTextWithShadow(textRenderer, String.valueOf(((TestBlockHandler) container).testBlockEntity.getTest()), x + 50, y + 50, -1);
     }

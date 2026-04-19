@@ -1,10 +1,6 @@
 package net.glasslauncher.mods.glassguis.mixin;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import com.llamalad7.mixinextras.sugar.Local;
-import lombok.Getter;
-import lombok.Setter;
 import net.fabricmc.loader.api.FabricLoader;
 import net.glasslauncher.mods.gcapi3.api.CharacterUtils;
 import net.glasslauncher.mods.glassguis.DrawDirection;
@@ -32,13 +28,12 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static net.glasslauncher.mods.glassguis.events.init.GlassGUIs.IMAGE_SIZE_CACHE;
 
 @Mixin(Screen.class)
-public class InventoryAdditions extends DrawContext implements GlassScreen<Screen> {
+public class ScreenAdditions extends DrawContext implements GlassScreen {
     @Unique
     public List<GlassWidget> widgets = new ArrayList<>();
 
@@ -79,23 +74,6 @@ public class InventoryAdditions extends DrawContext implements GlassScreen<Scree
     }
 
     @Override
-    public void glassguis_renderBackground(HandledScreen screen) {
-        glassguis_renderBackground(screen.width, screen.height, screen.backgroundWidth, screen.backgroundHeight);
-    }
-
-    @Override
-    public void glassguis_renderBackground(int screenWidth, int screenHeight, int backgroundWidth, int backgroundHeight) {
-        int x = (screenWidth - backgroundWidth) / 2;
-        int y = (screenHeight - backgroundHeight) / 2;
-
-        glassguis_drawBackgroundBox(x, y, x + backgroundWidth, y + backgroundHeight);
-
-        if (glassguis_name != null) {
-            Minecraft.INSTANCE.textRenderer.draw(glassguis_name, x + 8, y + 6, glassguis_textColor);
-        }
-    }
-
-    @Override
     public void glassguis_drawBackgroundBox(int x, int y, int x2, int y2) {
         fill(x + 2, y + 2, x2 - 2, y2 - 2, glassguis_guiBackground);
 
@@ -128,13 +106,13 @@ public class InventoryAdditions extends DrawContext implements GlassScreen<Scree
     }
 
     @Override
-    public void glassguis_drawImage(DrawContext screen, String imageString, int x, int y) {
-        glassguis_drawImagePercentage(screen, imageString, x, y, 1f, DrawDirection.UP);
+    public void glassguis_drawImage(String imageString, int x, int y) {
+        glassguis_drawImagePercentage(imageString, x, y, 1f, DrawDirection.UP);
     }
 
     @Override
-    public void glassguis_drawImagePercentage(DrawContext screen, String imageString, int x, int y, float percentage, DrawDirection drawDirection) {
-        if (screen instanceof HandledScreen handledScreen) {
+    public void glassguis_drawImagePercentage(String imageString, int x, int y, float percentage, DrawDirection drawDirection) {
+        if (((Object) this) instanceof HandledScreen handledScreen) {
             x += ((handledScreen.width - handledScreen.backgroundWidth) / 2);
             y += ((handledScreen.height - handledScreen.backgroundHeight) / 2);
         }
@@ -155,52 +133,6 @@ public class InventoryAdditions extends DrawContext implements GlassScreen<Scree
 
         Minecraft.INSTANCE.textureManager.bindTexture(Minecraft.INSTANCE.textureManager.getTextureId(imageString));
         glassguis_drawTexture(x, y, drawDirection.right || drawDirection.left ? (int) (size[0] * percentage) : size[0], drawDirection.down || drawDirection.up ? (int) (size[1] * percentage) : size[1], size[0], size[1], startX, startY);
-    }
-
-    @Override
-    public void glassguis_drawSlots(HandledScreen screen) {
-        if (screen.container == null || screen.container.slots == null) {
-            return;
-        }
-        int x = (screen.width - screen.backgroundWidth) / 2;
-        int y = (screen.height - screen.backgroundHeight) / 2;
-
-        for (Object slotObj : screen.container.slots) {
-            if (!(slotObj instanceof Slot slot)) {
-                continue;
-            }
-            int slotX = x + slot.x;
-            int slotY = y + slot.y;
-            int width;
-            int height;
-            int backgroundWidth;
-            int backgroundHeight;
-            if (slot instanceof GlassSlot customSlot) {
-                width = customSlot.getWidth();
-                height = customSlot.getHeight();
-                backgroundWidth = customSlot.getBackgroundWidth();
-                backgroundHeight = customSlot.getBackgroundHeight();
-            } else {
-                width = 16;
-                height = 16;
-                backgroundWidth = 16;
-                backgroundHeight = 16;
-            }
-            int slotBackgroundX = slotX - ((backgroundWidth - 16) / 2);
-            int slotBackgroundY = slotY - ((backgroundHeight - 16) / 2);
-
-            if (slot.getBackgroundTextureId() != -1 && ((slot instanceof GlassSlot && ((GlassSlot) slot).keepBackgroundTexture()) || !slot.hasStack())) {
-                if (FabricLoader.getInstance().isModLoaded("stationapi")) {
-                    StationAPICompat.drawSprite(slot, x, y, this);
-                }
-            }
-
-            screen.fill(slotBackgroundX - 1, slotBackgroundY - 1, slotBackgroundX + backgroundWidth + 1, slotBackgroundY + backgroundHeight + 1, glassguis_slotBackground);
-            screen.drawHorizontalLine(slotBackgroundX, slotBackgroundX + backgroundWidth - 1, slotBackgroundY - 1, glassguis_slotRoundingDark);
-            screen.drawVerticalLine(slotBackgroundX - 1, slotBackgroundY - 2, slotBackgroundY + backgroundHeight, glassguis_slotRoundingDark);
-            screen.drawHorizontalLine(slotBackgroundX, slotBackgroundX + backgroundWidth, slotBackgroundY + backgroundHeight, glassguis_slotRoundingLight);
-            screen.drawVerticalLine(slotBackgroundX + backgroundWidth, slotBackgroundY - 1, slotBackgroundY + backgroundHeight, glassguis_slotRoundingLight);
-        }
     }
 
     @Override
@@ -229,55 +161,15 @@ public class InventoryAdditions extends DrawContext implements GlassScreen<Scree
     }
 
     @Override
-    public void glassguis_drawText(HandledScreen screen, String text, int x, int y, int color) {
-        int offsetX = ((screen.width - screen.backgroundWidth) / 2) + x;
-        int offsetY = ((screen.height - screen.backgroundHeight) / 2) + y;
-        Minecraft.INSTANCE.textRenderer.draw(text, offsetX, offsetY, color);
-    }
+    public void glassguis_renderBackground(int screenWidth, int screenHeight, int backgroundWidth, int backgroundHeight) {
+        int x = (screenWidth - backgroundWidth) / 2;
+        int y = (screenHeight - backgroundHeight) / 2;
 
-    @Override
-    public void glassguis_tooltip(HandledScreen screen, List<String> text, Rectangle location, int mouseX, int mouseY) {
-        int xOffset = (screen.width - screen.backgroundWidth) / 2;
-        int yOffset = (screen.height - screen.backgroundHeight) / 2;
+        glassguis_drawBackgroundBox(x, y, x + backgroundWidth, y + backgroundHeight);
 
-        if (!location.contains(mouseX - xOffset, mouseY - yOffset)) {
-            return;
+        if (glassguis_name != null) {
+            Minecraft.INSTANCE.textRenderer.draw(glassguis_name, x + 8, y + 6, glassguis_textColor);
         }
-
-        if (FabricLoader.getInstance().isModLoaded("alwaysmoreitems")) { // Use AMI's much better tooltip system if it's installed.
-            //noinspection unchecked cry some more
-            AlwaysMoreItemsCompat.setTooltip((List<Object>) (Object) text, mouseX, mouseY);
-            return;
-        }
-
-        // Otherwise we're rawdogging and praying nothing else is trying to draw a tooltip.
-        int startX = mouseX - xOffset + 12;
-        int startY = mouseY - yOffset - 12;
-        int maxLineLength = 0;
-        for (String line : text) {
-            if (line.length() > maxLineLength) {
-                maxLineLength = line.length();
-            }
-        }
-        if (maxLineLength == 0) {
-            return;
-        }
-        screen.fill(
-                startX - 3,
-                startY - 3,
-                startX + maxLineLength + 3,
-                startY + 8 + 3,
-                -1073741824
-        );
-        for (String line : text) {
-            Minecraft.INSTANCE.textRenderer.drawWithShadow(line, startX, startY, -1);
-            startY += 12;
-        }
-    }
-
-    @Override
-    public Screen glassguis_getReal() {
-        return GlassScreen.super.glassguis_getReal();
     }
 
     @Override

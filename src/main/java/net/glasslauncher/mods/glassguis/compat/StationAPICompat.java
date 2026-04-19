@@ -11,7 +11,7 @@ import net.modificationstation.stationapi.api.client.texture.atlas.Atlases;
 
 public class StationAPICompat {
 
-    public static void drawSprite(Slot slot, int x, int y, GlassScreen<Screen> screen) {
+    public static void drawSprite(Slot slot, int x, int y, GlassScreen screen) {
         Sprite sprite = Atlases.getGuiItems().getTexture(slot.getBackgroundTextureId()).getSprite();
         SpriteAtlasTexture atlas = StationRenderAPI.getBakedModelManager().getAtlas(sprite.getAtlasId());
         atlas.bindTexture();
