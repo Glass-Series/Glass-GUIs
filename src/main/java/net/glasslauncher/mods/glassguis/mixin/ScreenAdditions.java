@@ -1,20 +1,15 @@
 package net.glasslauncher.mods.glassguis.mixin;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import net.fabricmc.loader.api.FabricLoader;
 import net.glasslauncher.mods.gcapi3.api.CharacterUtils;
 import net.glasslauncher.mods.glassguis.DrawDirection;
-import net.glasslauncher.mods.glassguis.compat.AlwaysMoreItemsCompat;
-import net.glasslauncher.mods.glassguis.compat.StationAPICompat;
 import net.glasslauncher.mods.glassguis.screen.GlassScreen;
 import net.glasslauncher.mods.glassguis.screen.widget.GlassWidget;
-import net.glasslauncher.mods.glassguis.screen.widget.slot.GlassSlot;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.render.Tessellator;
-import net.minecraft.screen.slot.Slot;
 import org.lwjgl.input.Mouse;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

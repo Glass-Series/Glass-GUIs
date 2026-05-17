@@ -3,9 +3,13 @@ package net.glasslauncher.mods.glassguistest.events.init;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.glasslauncher.mods.glassguis.DrawDirection;
+import net.glasslauncher.mods.glassguis.ImageUtil;
 import net.glasslauncher.mods.glassguis.screen.SyncedTileEntityValue;
 import net.glasslauncher.mods.glassguis.screen.widget.GlassButton;
 import net.glasslauncher.mods.glassguis.screen.widget.GlassEntryListWidget;
+import net.glasslauncher.mods.glassguis.screen.widget.ImageWidget;
+import net.glasslauncher.mods.glassguis.screen.widget.element.TextElement;
+import net.glasslauncher.mods.glassguis.screen.widget.element.WidgetElement;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.render.Tessellator;
@@ -17,24 +21,32 @@ import java.util.List;
 
 @Environment(EnvType.CLIENT)
 public class TestBlockGUI extends HandledScreen {
-    GlassEntryListWidget listWidget;
+//    GlassEntryListWidget listWidget;
+    ImageWidget image;
     GlassButton button;
 
     public TestBlockGUI(PlayerInventory inventory, TestBlockEntity container) {
         super(new TestBlockHandler(inventory, container));
-        listWidget = new Widget(Minecraft.INSTANCE, 200, 200, 10, 10, 10);
-        listWidget.setDrawSelectedBox(true);
-        glassguis_addWidget(listWidget);
+//        listWidget = new Widget(Minecraft.INSTANCE, 200, 200, 10, 10, 10);
+//        listWidget.setDrawSelectedBox(true);
+//        glassguis_addWidget(listWidget);
+        ImageUtil.Image img = ImageUtil.Image.of("/assets/glassguis_test/stationapi/textures/item/acacia.png");
+        image = new ImageWidget(20, 50, 32, 32, img);
+        glassguis_addWidget(image);
+        image.addElement(new TextElement("Oh yeah, I can write on this", image.getWidth(), 0));
+        glassguis_addWidget(new ImageWidget(20, 90, 8, 8, img));
+        glassguis_addWidget(new ImageWidget(20, 100, 32, 16, img));
+        glassguis_addWidget(new ImageWidget(20, 120, 24, 32, img));
         button = new GlassButton(20, 20, "Wait, this works?", () -> {});
-        button.addImage("/assets/glassguis_test/stationapi/textures/item/acacia.png", GlassButton.Alignment.LEFT);
-        button.addText("What?", GlassButton.Alignment.LEFT);
-        button.addText("Huh???", GlassButton.Alignment.RIGHT);
+        button.addImage("/assets/glassguis_test/stationapi/textures/item/acacia.png", WidgetElement.Alignment.LEFT);
+        button.addText("What?", WidgetElement.Alignment.LEFT);
+        button.addText("Huh???", WidgetElement.Alignment.RIGHT);
         glassguis_addWidget(button);
     }
 
     @Override
     public void init() {
-        listWidget.setBounds(new Rectangle(100, 100, 200, 200));
+//        listWidget.setBounds(new Rectangle(100, 100, 200, 200));
         super.init();
     }
 
@@ -127,6 +139,11 @@ public class TestBlockGUI extends HandledScreen {
         @Override
         protected void renderEntry(int index, int x, int y, int width, int height, Tessellator tessellator) {
             Minecraft.INSTANCE.textRenderer.drawWithShadow(entries.get(index), x, y, -1);
+        }
+
+        @Override
+        public void renderElements(int mouseX, int mouseY, float delta) {
+
         }
     };
 }

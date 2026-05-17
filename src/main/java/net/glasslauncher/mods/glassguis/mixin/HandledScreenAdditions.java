@@ -4,7 +4,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.glasslauncher.mods.glassguis.compat.AlwaysMoreItemsCompat;
 import net.glasslauncher.mods.glassguis.compat.StationAPICompat;
 import net.glasslauncher.mods.glassguis.screen.GlassHandledScreen;
-import net.glasslauncher.mods.glassguis.screen.widget.slot.GlassSlot;
+import net.glasslauncher.mods.glassguis.screen.slot.GlassSlot;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;

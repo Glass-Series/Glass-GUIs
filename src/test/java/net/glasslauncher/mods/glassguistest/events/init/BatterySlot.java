@@ -1,6 +1,6 @@
 package net.glasslauncher.mods.glassguistest.events.init;
 
-import net.glasslauncher.mods.glassguis.screen.widget.slot.BigHitboxSlot;
+import net.glasslauncher.mods.glassguis.screen.slot.BigHitboxSlot;
 import net.minecraft.inventory.Inventory;
 import net.modificationstation.stationapi.api.client.StationRenderAPI;
 import net.modificationstation.stationapi.api.client.texture.SpriteAtlasTexture;

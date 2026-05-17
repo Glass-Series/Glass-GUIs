@@ -11,4 +11,6 @@ public interface GlassWidget {
     void setBounds(Rectangle bounds);
 
     void render(int mouseX, int mouseY, float frameDelta);
+
+    void renderElements(int mouseX, int mouseY, float delta);
 }

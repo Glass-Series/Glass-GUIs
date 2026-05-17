@@ -1,4 +1,4 @@
-package net.glasslauncher.mods.glassguis.screen.widget.slot;
+package net.glasslauncher.mods.glassguis.screen.slot;
 
 public interface GlassSlot {
     int getWidth();

@@ -1,4 +1,4 @@
-package net.glasslauncher.mods.glassguis.screen.widget.slot;
+package net.glasslauncher.mods.glassguis.screen.slot;
 
 import net.minecraft.inventory.Inventory;
 import net.minecraft.screen.slot.Slot;

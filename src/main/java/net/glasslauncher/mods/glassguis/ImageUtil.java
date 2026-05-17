@@ -86,7 +86,28 @@ public class ImageUtil {
         /**
          * Made as its own method so people could in theory render literally anything they want.
          */
-        public void draw(int x, int y, int maxTipWidth) {
+        public void draw(int x, int y, int maxWidth, int maxHeight, boolean shouldFill) {
+            int width = this.width;
+            int height = this.height;
+
+            if ((shouldFill && width < maxWidth && height < maxHeight) || width > maxWidth || height > maxHeight) {
+                float imgAspect = ((float) width) / height;
+                float renderAspect = ((float) maxWidth) / maxHeight;
+                if (renderAspect == 1 && imgAspect == 1) {
+                    width = maxWidth;
+                    height = maxHeight;
+                }
+                else {
+                    double scaleX = (double) maxWidth / width;
+                    double scaleY = (double) maxHeight / height;
+
+                    double fittingAspect = Math.min(scaleX, scaleY);
+
+                    width = (int) (width * fittingAspect);
+                    height = (int) (height * fittingAspect);
+                }
+            }
+
             GL11.glDisable(2896);
             GL11.glDisable(2912);
             RenderHelper.bindTexture(image);
