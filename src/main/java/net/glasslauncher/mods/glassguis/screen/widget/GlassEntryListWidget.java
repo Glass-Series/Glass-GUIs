@@ -35,6 +35,8 @@ public abstract class GlassEntryListWidget implements GlassWidget {
     private Rectangle bounds;
     @Getter
     private Rectangle scrollBounds;
+    @Setter
+    private boolean drawBackground = true;
 
     public GlassEntryListWidget(Minecraft minecraft, int x, int y, int width, int height, int topSize, int bottomSize, int itemHeight) {
         this.minecraft = minecraft;
@@ -171,14 +173,16 @@ public abstract class GlassEntryListWidget implements GlassWidget {
         GL11.glBindTexture(3553, minecraft.textureManager.getTextureId("/gui/background.png"));
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 
-        float backgroundSize = 32.0F;
-        tessellator.startQuads();
-        tessellator.color(2105376);
-        tessellator.vertex(left, bottomStart, 0.0, (float)left / backgroundSize, (float)(y + bottomStart + (int)scrollAmount) / backgroundSize);
-        tessellator.vertex(right, bottomStart, 0.0, (float)right / backgroundSize, (float)(y + bottomStart + (int)scrollAmount) / backgroundSize);
-        tessellator.vertex(right, topEnd, 0.0, (float)right / backgroundSize, (float)(y + topEnd + (int)scrollAmount) / backgroundSize);
-        tessellator.vertex(left, topEnd, 0.0, (float)left / backgroundSize, (float)(y + topEnd + (int)scrollAmount) / backgroundSize);
-        tessellator.draw();
+        if (drawBackground) {
+            float backgroundSize = 32.0F;
+            tessellator.startQuads();
+            tessellator.color(2105376);
+            tessellator.vertex(left, bottomStart, 0.0, (float) left / backgroundSize, (float) (y + bottomStart + (int) scrollAmount) / backgroundSize);
+            tessellator.vertex(right, bottomStart, 0.0, (float) right / backgroundSize, (float) (y + bottomStart + (int) scrollAmount) / backgroundSize);
+            tessellator.vertex(right, topEnd, 0.0, (float) right / backgroundSize, (float) (y + topEnd + (int) scrollAmount) / backgroundSize);
+            tessellator.vertex(left, topEnd, 0.0, (float) left / backgroundSize, (float) (y + topEnd + (int) scrollAmount) / backgroundSize);
+            tessellator.draw();
+        }
 
         int entryCount = getEntryCount();
         int entryHeight = itemHeight - 4;
@@ -250,21 +254,29 @@ public abstract class GlassEntryListWidget implements GlassWidget {
 
         GL11.glDisable(2929);
         byte shadowHeight = 4;
-        renderBars(y, topEnd, 255, 255);
-        renderBars(bottomStart, y + height, 255, 255);
+        if (topSize != 0) {
+            renderBars(y, topEnd, 255, 255);
+        }
+        if (bottomSize != 0) {
+            renderBars(bottomStart, y + height, 255, 255);
+        }
         GL11.glEnable(3042);
         GL11.glBlendFunc(770, 771);
         GL11.glDisable(3008);
         GL11.glShadeModel(7425);
         GL11.glDisable(3553);
-        tessellator.startQuads();
-        tessellator.color(0, 0);
-        tessellator.vertex(left, topEnd + shadowHeight, 0.0, 0.0, 1.0);
-        tessellator.vertex(right, topEnd + shadowHeight, 0.0, 1.0, 1.0);
-        tessellator.color(0, 255);
-        tessellator.vertex(right, topEnd, 0.0, 1.0, 0.0);
-        tessellator.vertex(left, topEnd, 0.0, 0.0, 0.0);
-        tessellator.draw();
+
+        if (topSize != 0) {
+            tessellator.startQuads();
+            tessellator.color(0, 0);
+            tessellator.vertex(left, topEnd + shadowHeight, 0.0, 0.0, 1.0);
+            tessellator.vertex(right, topEnd + shadowHeight, 0.0, 1.0, 1.0);
+            tessellator.color(0, 255);
+            tessellator.vertex(right, topEnd, 0.0, 1.0, 0.0);
+            tessellator.vertex(left, topEnd, 0.0, 0.0, 0.0);
+            tessellator.draw();
+        }
+        if (bottomSize != 0) {
         tessellator.startQuads();
         tessellator.color(0, 255);
         tessellator.vertex(left, bottomStart, 0.0, 0.0, 1.0);
@@ -273,6 +285,7 @@ public abstract class GlassEntryListWidget implements GlassWidget {
         tessellator.vertex(right, bottomStart - shadowHeight, 0.0, 1.0, 0.0);
         tessellator.vertex(left, bottomStart - shadowHeight, 0.0, 0.0, 0.0);
         tessellator.draw();
+        }
 
         int scrollbarLeft = x + width - 6;
         int scrollbarRight = scrollbarLeft + 6;
