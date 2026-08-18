@@ -277,14 +277,14 @@ public abstract class GlassEntryListWidget implements GlassWidget {
             tessellator.draw();
         }
         if (bottomSize != 0) {
-        tessellator.startQuads();
-        tessellator.color(0, 255);
-        tessellator.vertex(left, bottomStart, 0.0, 0.0, 1.0);
-        tessellator.vertex(right, bottomStart, 0.0, 1.0, 1.0);
-        tessellator.color(0, 0);
-        tessellator.vertex(right, bottomStart - shadowHeight, 0.0, 1.0, 0.0);
-        tessellator.vertex(left, bottomStart - shadowHeight, 0.0, 0.0, 0.0);
-        tessellator.draw();
+            tessellator.startQuads();
+            tessellator.color(0, 255);
+            tessellator.vertex(left, bottomStart, 0.0, 0.0, 1.0);
+            tessellator.vertex(right, bottomStart, 0.0, 1.0, 1.0);
+            tessellator.color(0, 0);
+            tessellator.vertex(right, bottomStart - shadowHeight, 0.0, 1.0, 0.0);
+            tessellator.vertex(left, bottomStart - shadowHeight, 0.0, 0.0, 0.0);
+            tessellator.draw();
         }
 
         int scrollbarLeft = x + width - 6;
