@@ -13,6 +13,18 @@ public interface GlassScreenHandler {
     default Field glassguis_getSettableField(int propertyId, Class<?> type) { Util.assertImpl(); return null; }
 
     @Environment(EnvType.CLIENT)
+    default void glassguis_setProperty(int propertyId, int intValue) {
+        Field field = glassguis_getSettableField(propertyId, int.class);
+        if (field != null) {
+            try {
+                field.setInt(((AutoSyncingScreenHandler) this).getBlockEntity(), intValue);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    @Environment(EnvType.CLIENT)
     default void glassguis_setProperty(int propertyId, long longValue) {
         Field field = glassguis_getSettableField(propertyId, long.class);
         if (field != null) {

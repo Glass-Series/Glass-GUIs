@@ -14,7 +14,7 @@ public class GlassGUIsPackets implements GlassPacketListener {
             if (screenHandler == null || screenHandler.syncId != nbt.getInt("syncId")) {
                 return;
             }
-            screenHandler.setProperty(nbt.getInt("propertyId"), nbt.getInt("value"));
+            screenHandler.glassguis_setProperty(nbt.getInt("propertyId"), nbt.getInt("value"));
         }, true, false);
 
         registerGlassPacket("glassguis:short", (p, n) -> {

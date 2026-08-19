@@ -62,7 +62,7 @@ public abstract class ScreenHandlerMixin implements GlassScreenHandler {
         if (this instanceof AutoSyncingScreenHandler) {
             for (Object listener : listeners) {
                 if (listener instanceof PlayerEntity player) {
-                    GGUIUtil.handleAutoSend((PlayerEntity) player, (ScreenHandler) (Object) this);
+                    GGUIUtil.handleAutoSend(player, (ScreenHandler) (Object) this);
                 }
             }
         }
